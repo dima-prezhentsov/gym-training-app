@@ -1,30 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:gym_training_app/main.dart';
+import 'package:gym_training_app/telegram/telegram_web_app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('shows Telegram launch information', (tester) async {
+    const telegram = TelegramLaunchData(
+      isTelegram: true,
+      platform: 'tdesktop',
+      version: '10.1',
+      isDarkMode: false,
+      userName: 'Dima (@dima)',
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(const GymTrainingApp(telegram: telegram));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('Telegram Mini App подключён'), findsOneWidget);
+    expect(find.text('tdesktop'), findsOneWidget);
+    expect(find.text('10.1'), findsOneWidget);
+    expect(find.text('Dima (@dima)'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('shows a browser preview fallback', (tester) async {
+    await tester.pumpWidget(
+      const GymTrainingApp(telegram: TelegramLaunchData.browser()),
+    );
+
+    expect(find.text('Предпросмотр в обычном браузере'), findsOneWidget);
+    expect(find.text('browser'), findsOneWidget);
   });
 }

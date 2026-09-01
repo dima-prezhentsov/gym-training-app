@@ -1,11 +1,11 @@
 {
-    "name": "gym_training_app",
-    "short_name": "gym_training_app",
+    "name": "Gym Training",
+    "short_name": "Gym Training",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F7F7FB",
+    "theme_color": "#5B67F1",
+    "description": "Telegram Mini App for gym training.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
