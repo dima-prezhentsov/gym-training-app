@@ -16,6 +16,18 @@ void main() {
     expect(find.text('Начать тренировку'), findsOneWidget);
   });
 
+  testWidgets('redirects the root URL to the home screen', (tester) async {
+    final app = GymTrainingApp(telegram: const TelegramLaunchData.browser());
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
+
+    app.router.config.go('/');
+    await tester.pumpAndSettle();
+
+    expect(find.text('До тренировки — 2 дня'), findsOneWidget);
+    expect(find.text('Не удалось открыть экран'), findsNothing);
+  });
+
   testWidgets('keeps shell navigation between main sections', (tester) async {
     await tester.pumpWidget(
       GymTrainingApp(telegram: const TelegramLaunchData.browser()),

@@ -17,6 +17,9 @@ AppRouter createAppRouter() {
   return AppRouter(
     GoRouter(
       initialLocation: '/home',
+      redirect: (context, state) {
+        return state.uri.path == '/' ? '/home' : null;
+      },
       routes: [
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
