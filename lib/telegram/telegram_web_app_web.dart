@@ -13,6 +13,8 @@ extension type TelegramWebAppJs(JSObject _) implements JSObject {
   external TelegramInitDataJs get initDataUnsafe;
   external void ready();
   external void expand();
+  external bool isVersionAtLeast(String version);
+  external void disableVerticalSwipes();
 }
 
 extension type TelegramInitDataJs(JSObject _) implements JSObject {
@@ -37,6 +39,9 @@ TelegramLaunchData initializeTelegramWebApp() {
 
   app.ready();
   app.expand();
+  if (app.isVersionAtLeast('7.7')) {
+    app.disableVerticalSwipes();
+  }
 
   final user = app.initDataUnsafe.user;
   return TelegramLaunchData(
