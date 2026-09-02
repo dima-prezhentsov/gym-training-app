@@ -28,6 +28,23 @@ void main() {
     expect(find.text('Не удалось открыть экран'), findsNothing);
   });
 
+  testWidgets('opens home when Telegram launch data occupies the hash', (
+    tester,
+  ) async {
+    final app = GymTrainingApp(telegram: const TelegramLaunchData.browser());
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
+
+    app.router.config.go(
+      '/tgWebAppData=user%3Dtest&tgWebAppVersion=10.1'
+      '&tgWebAppPlatform=tdesktop&tgWebAppThemeParams=%7B%7D',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('До тренировки — 2 дня'), findsOneWidget);
+    expect(find.textContaining('Не удалось открыть экран'), findsNothing);
+  });
+
   testWidgets('keeps shell navigation between main sections', (tester) async {
     await tester.pumpWidget(
       GymTrainingApp(telegram: const TelegramLaunchData.browser()),

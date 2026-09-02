@@ -18,7 +18,9 @@ AppRouter createAppRouter() {
     GoRouter(
       initialLocation: '/home',
       redirect: (context, state) {
-        return state.uri.path == '/' ? '/home' : null;
+        final path = state.uri.path;
+        final isTelegramLaunchPath = path.startsWith('/tgWebApp');
+        return path == '/' || isTelegramLaunchPath ? '/home' : null;
       },
       routes: [
         StatefulShellRoute.indexedStack(
