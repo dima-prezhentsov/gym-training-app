@@ -66,7 +66,7 @@ AppRouter createAppRouter() {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'Не удалось открыть экран',
+              'Не удалось открыть экран\n${state.uri}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
