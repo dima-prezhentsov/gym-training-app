@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../domain/models/active_workout.dart';
 import '../../../../domain/models/training_overview.dart';
 import '../../../../telegram/telegram_web_app.dart';
+import '../../workout/view_models/workout_view_model.dart';
 import '../view_models/home_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -37,6 +39,7 @@ class _HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final telegram = context.read<TelegramLaunchData>();
+    final activeWorkout = context.watch<WorkoutViewModel>().activeWorkout;
     final displayName = telegram.userName?.split(' ').first ?? 'спортсмен';
 
     return CustomScrollView(
@@ -70,9 +73,16 @@ class _HomeContent extends StatelessWidget {
               const SizedBox(height: 26),
               _WeekStrip(days: overview.days),
               const SizedBox(height: 32),
-              const _SectionTitle(title: 'Следующая тренировка'),
+              _SectionTitle(
+                title: activeWorkout == null
+                    ? 'Следующая тренировка'
+                    : 'Активная Тренировка',
+              ),
               const SizedBox(height: 14),
-              _NextTrainingCard(training: overview.nextTraining),
+              _NextTrainingCard(
+                training: overview.nextTraining,
+                activeWorkout: activeWorkout,
+              ),
               const SizedBox(height: 32),
               const _SectionTitle(title: 'На этой неделе'),
               const SizedBox(height: 14),
@@ -155,12 +165,26 @@ class _DayTile extends StatelessWidget {
 }
 
 class _NextTrainingCard extends StatelessWidget {
-  const _NextTrainingCard({required this.training});
+  const _NextTrainingCard({
+    required this.training,
+    required this.activeWorkout,
+  });
 
   final TrainingDaySummary training;
+  final ActiveWorkout? activeWorkout;
 
   @override
   Widget build(BuildContext context) {
+    final active = activeWorkout;
+    final title = active?.title ?? training.title;
+    final exerciseCount = active?.exercises.length ?? training.exerciseCount;
+    final muscleGroups = active == null
+        ? training.muscleGroups
+        : active.exercises
+              .map((exercise) => exercise.muscleGroup.label)
+              .toSet()
+              .toList();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(22),
@@ -184,28 +208,33 @@ class _NextTrainingCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '${training.estimatedMinutes} мин',
+                  active == null
+                      ? '${training.estimatedMinutes} мин'
+                      : 'В процессе',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
             const SizedBox(height: 26),
-            Text(
-              training.title,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 6),
             Text(
-              '${training.muscleGroups.join(' · ')}  ·  ${training.exerciseCount} упражнений',
+              '${muscleGroups.join(' · ')}  ·  $exerciseCount упражнений',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 22),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => context.push('/workout/${training.id}'),
+                onPressed: () => context.push(
+                  '/workout/${active?.trainingDayId ?? training.id}',
+                ),
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: const Text('Начать тренировку'),
+                label: Text(
+                  active == null
+                      ? 'Начать тренировку'
+                      : 'Продолжить тренировку',
+                ),
               ),
             ),
           ],

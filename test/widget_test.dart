@@ -194,6 +194,30 @@ void main() {
     expect(find.text('1. 10 повторений · 40 кг'), findsOneWidget);
   });
 
+  testWidgets('shows and resumes the active workout from home', (tester) async {
+    await tester.pumpWidget(
+      GymTrainingApp(telegram: const TelegramLaunchData.browser()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Начать тренировку'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Назад'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Активная Тренировка'), findsOneWidget);
+    expect(find.text('Продолжить тренировку'), findsOneWidget);
+    expect(find.text('В процессе'), findsOneWidget);
+
+    await tester.tap(find.text('Продолжить тренировку'));
+    await tester.pumpAndSettle();
+    expect(find.text('Активная тренировка'), findsOneWidget);
+    expect(find.text('Тяга верхнего блока'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Назад'));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('shows an error when a workout schedule cannot be loaded', (
     tester,
   ) async {
