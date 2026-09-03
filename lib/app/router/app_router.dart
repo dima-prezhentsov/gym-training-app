@@ -6,6 +6,7 @@ import '../../ui/features/history/views/history_screen.dart';
 import '../../ui/features/home/views/home_screen.dart';
 import '../../ui/features/profile/views/profile_screen.dart';
 import '../../ui/features/schedule/views/schedule_screen.dart';
+import '../../ui/features/workout/views/active_workout_screen.dart';
 
 class AppRouter {
   AppRouter(this.config);
@@ -61,6 +62,12 @@ AppRouter createAppRouter() {
               ],
             ),
           ],
+        ),
+        GoRoute(
+          path: '/workout/:dayId',
+          builder: (context, state) => ActiveWorkoutScreen(
+            trainingDayId: state.pathParameters['dayId']!,
+          ),
         ),
       ],
       errorBuilder: (context, state) => Scaffold(

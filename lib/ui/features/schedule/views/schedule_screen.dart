@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -60,6 +61,7 @@ class ScheduleScreen extends StatelessWidget {
               _ScheduleDayCard(
                 day: day,
                 onTap: () => _openEditor(context, day: day),
+                onStart: () => context.push('/workout/${day.id}'),
               ),
               const SizedBox(height: 12),
             ],
@@ -102,10 +104,15 @@ class ScheduleScreen extends StatelessWidget {
 }
 
 class _ScheduleDayCard extends StatelessWidget {
-  const _ScheduleDayCard({required this.day, required this.onTap});
+  const _ScheduleDayCard({
+    required this.day,
+    required this.onTap,
+    required this.onStart,
+  });
 
   final TrainingDay day;
   final VoidCallback onTap;
+  final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
@@ -149,9 +156,10 @@ class _ScheduleDayCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textSecondary,
+              IconButton.filledTonal(
+                onPressed: onStart,
+                tooltip: 'Начать ${day.name}',
+                icon: const Icon(Icons.play_arrow_rounded),
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -202,13 +203,7 @@ class _NextTrainingCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Активная тренировка появится на следующем этапе',
-                    ),
-                  ),
-                ),
+                onPressed: () => context.push('/workout/${training.id}'),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Начать тренировку'),
               ),

@@ -36,7 +36,7 @@ class DemoTrainingOverviewRepository implements TrainingOverviewRepository {
         ),
       ],
       nextTraining: TrainingDaySummary(
-        id: 'back-and-biceps',
+        id: 'thursday-pull',
         title: 'Спина + бицепс',
         muscleGroups: ['Спина', 'Бицепс'],
         exerciseCount: 6,

@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/data/repositories/in_memory_workout_repository.dart';
+import 'package:gym_training_app/data/repositories/workout_repository.dart';
 import 'package:gym_training_app/domain/models/exercise.dart';
 import 'package:gym_training_app/domain/models/muscle_group.dart';
 import 'package:gym_training_app/domain/models/training_day.dart';
 import 'package:gym_training_app/domain/models/training_weekday.dart';
+import 'package:gym_training_app/domain/models/workout_record.dart';
 import 'package:gym_training_app/ui/features/workout/view_models/workout_view_model.dart';
 
 void main() {
@@ -84,4 +86,25 @@ void main() {
     expect(viewModel.history, [record]);
     expect(await repository.loadHistory(), [record]);
   });
+
+  test('keeps the active workout when saving fails', () async {
+    final viewModel = WorkoutViewModel(repository: _FailingWorkoutRepository());
+    viewModel.startWorkout(day);
+    viewModel.addSet(exerciseId: 'lat-pulldown', repetitions: 8, weightKg: 45);
+
+    final record = await viewModel.finishWorkout();
+
+    expect(record, isNull);
+    expect(viewModel.activeWorkout?.totalSets, 1);
+    expect(viewModel.errorMessage, 'Не удалось сохранить тренировку');
+  });
+}
+
+class _FailingWorkoutRepository implements WorkoutRepository {
+  @override
+  Future<List<WorkoutRecord>> loadHistory() async => const [];
+
+  @override
+  Future<void> save(WorkoutRecord record) =>
+      Future.error(StateError('save failed'));
 }

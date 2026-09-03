@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/app/app.dart';
+import 'package:gym_training_app/data/repositories/training_schedule_repository.dart';
+import 'package:gym_training_app/domain/models/training_schedule.dart';
 import 'package:gym_training_app/telegram/telegram_web_app.dart';
 
 void main() {
@@ -142,4 +144,79 @@ void main() {
 
     expect(find.text('Грудь + трицепс'), findsNothing);
   });
+
+  testWidgets('records a set and shows the completed workout in history', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      GymTrainingApp(telegram: const TelegramLaunchData.browser()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Начать тренировку'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Активная тренировка'), findsOneWidget);
+    expect(find.text('Тяга верхнего блока'), findsOneWidget);
+
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, 'Добавить подход').first,
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('set-repetitions-field')),
+      '10',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('set-weight-field')),
+      '40',
+    );
+    await tester.tap(find.byKey(const ValueKey('save-set-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('10 повторений'), findsOneWidget);
+    expect(find.text('40 кг'), findsOneWidget);
+
+    final finishButton = find.byKey(const ValueKey('finish-workout-button'));
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+    await tester.tap(finishButton);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Завершить'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('История'), findsWidgets);
+    expect(find.text('Спина + бицепс'), findsOneWidget);
+    expect(find.textContaining('1 подход'), findsOneWidget);
+
+    await tester.tap(find.text('Спина + бицепс'));
+    await tester.pumpAndSettle();
+    expect(find.text('1. 10 повторений · 40 кг'), findsOneWidget);
+  });
+
+  testWidgets('shows an error when a workout schedule cannot be loaded', (
+    tester,
+  ) async {
+    final app = GymTrainingApp(
+      telegram: const TelegramLaunchData.browser(),
+      scheduleRepository: _FailingTrainingScheduleRepository(),
+    );
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
+
+    app.router.config.go('/workout/thursday-pull');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Не удалось загрузить расписание'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+  });
+}
+
+class _FailingTrainingScheduleRepository implements TrainingScheduleRepository {
+  @override
+  Future<TrainingSchedule> load() => Future.error(StateError('load failed'));
+
+  @override
+  Future<void> save(TrainingSchedule schedule) async {}
 }
