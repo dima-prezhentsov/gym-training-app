@@ -5,6 +5,7 @@ class TelegramLaunchData {
     required this.version,
     required this.isDarkMode,
     this.userName,
+    this.initData = '',
   });
 
   const TelegramLaunchData.browser()
@@ -12,11 +13,15 @@ class TelegramLaunchData {
       platform = 'browser',
       version = '—',
       isDarkMode = false,
-      userName = null;
+      userName = null,
+      initData = '';
 
   final bool isTelegram;
   final String platform;
   final String version;
   final bool isDarkMode;
   final String? userName;
+
+  /// Raw Telegram launch data. It must only be trusted after server validation.
+  final String initData;
 }

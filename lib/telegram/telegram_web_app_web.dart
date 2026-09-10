@@ -50,6 +50,7 @@ TelegramLaunchData initializeTelegramWebApp() {
     version: app.version,
     isDarkMode: app.colorScheme == 'dark',
     userName: user == null ? null : _displayName(user),
+    initData: app.initData,
   );
 }
 

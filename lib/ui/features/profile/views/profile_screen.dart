@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../data/services/backend_session.dart';
 import '../../../../telegram/telegram_web_app.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -10,6 +11,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final telegram = context.watch<TelegramLaunchData>();
+    final backend = context.watch<BackendSession>();
 
     return SafeArea(
       bottom: false,
@@ -65,15 +67,38 @@ class ProfileScreen extends StatelessWidget {
           _ProfileRow(label: 'Bot API', value: telegram.version),
           const Divider(),
           const _ProfileRow(label: 'Единицы веса', value: 'Килограммы'),
+          const Divider(),
+          _ProfileRow(label: 'Синхронизация', value: _backendStatus(backend)),
           const SizedBox(height: 28),
           Text(
-            'Авторизация и синхронизация данных появятся после подключения backend.',
+            _backendHint(backend),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),
     );
+  }
+
+  String _backendStatus(BackendSession backend) {
+    return switch (backend.status) {
+      BackendSessionStatus.disabled => 'Не настроена',
+      BackendSessionStatus.connecting => 'Подключение…',
+      BackendSessionStatus.authenticated => 'Аккаунт подключён',
+      BackendSessionStatus.failed => 'Ошибка подключения',
+    };
+  }
+
+  String _backendHint(BackendSession backend) {
+    return switch (backend.status) {
+      BackendSessionStatus.disabled =>
+        'Для синхронизации соберите приложение с адресом backend.',
+      BackendSessionStatus.connecting => 'Проверяем запуск через Telegram…',
+      BackendSessionStatus.authenticated =>
+        'Telegram-аккаунт подтверждён сервером. Данные готовы к синхронизации.',
+      BackendSessionStatus.failed =>
+        'Не удалось подтвердить Telegram-аккаунт. Попробуйте открыть Mini App заново.',
+    };
   }
 }
 

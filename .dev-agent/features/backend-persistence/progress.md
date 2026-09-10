@@ -1,8 +1,8 @@
 # Backend persistence — прогресс
 
-- Часть: 1 из 4 выполнена.
-- Следующая: `part-2.md` — Telegram auth.
-- Артефакты: `backend/backend_server`, `backend/backend_client`, Docker Compose, начальная Serverpod migration, README и `spec.md`.
-- Проверено: Serverpod generate успешно; `dart analyze` без замечаний; `docker compose config` валиден; базовый integration test прошёл (1/1).
-- Изменилось в плане: стандартный Serverpod 3.4.13 scaffold уже включает auth-core/JWT и его migration; часть 2 расширит этот механизм Telegram-провайдером вместо создания параллельной системы сессий.
+- Часть: 2 из 4 выполнена.
+- Следующая: `part-3.md` — постоянное расписание.
+- Артефакты: HMAC/freshness-валидатор Telegram `initData`, `telegram_account`, auth endpoint, JWT-сессия, Flutter `BackendSession`, compile-time `BACKEND_URL` и additive migration.
+- Проверено: подмена, протухшие и неполные данные отклоняются; повторный вход одного Telegram ID использует того же auth user; Flutter preview работает без backend.
+- Изменилось в плане: шаблонные IDP-таблицы сохранены в схеме для безопасной additive migration, но email endpoint и provider не публикуются приложением.
 - Не делать снова: phases 1–3 завершены; архитектура и разбивка закреплены в `spec.md`.

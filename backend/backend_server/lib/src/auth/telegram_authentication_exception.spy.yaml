@@ -1,0 +1,4 @@
+### Authentication failed because Telegram launch data could not be trusted.
+exception: TelegramAuthenticationException
+fields:
+  reason: String

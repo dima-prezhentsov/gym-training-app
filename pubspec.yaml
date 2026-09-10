@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  backend_client:
+    path: backend/backend_client
   flutter:
     sdk: flutter
 
@@ -36,6 +38,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
   go_router: ^17.5.0
+  serverpod_auth_core_flutter: 3.4.13
+  serverpod_flutter: 3.4.13
 
 dev_dependencies:
   flutter_test:

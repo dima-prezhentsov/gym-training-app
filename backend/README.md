@@ -10,6 +10,13 @@ Dart backend на Serverpod и PostgreSQL для Telegram Mini App.
 
 ## Локальный запуск
 
+Добавьте bot token только в локальный `backend_server/config/passwords.yaml`:
+
+```yaml
+development:
+  telegramBotToken: '123456:replace-with-real-token'
+```
+
 ```sh
 cd backend/backend_server
 docker compose up --build --detach
@@ -39,5 +46,6 @@ serverpod generate
 ## Секреты
 
 `backend_server/config/passwords.yaml` не коммитится. Для локальной разработки
-он создаётся Serverpod CLI. Production-секреты, включая bot token Telegram,
-передаются только окружением или секрет-хранилищем платформы деплоя.
+он создаётся Serverpod CLI. Production-секреты передаются только окружением или
+секрет-хранилищем платформы деплоя. Backend читает bot token из переменной
+`TELEGRAM_BOT_TOKEN`.

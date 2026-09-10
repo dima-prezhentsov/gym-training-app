@@ -29,12 +29,22 @@ Workflow `.github/workflows/deploy-pages.yml` проверяет проект, �
 3. Укажите URL `https://dima-prezhentsov.github.io/gym-training-app/`.
 4. Откройте бота и нажмите **Open App**.
 
-`Telegram.WebApp.initDataUnsafe` используется только для тестового отображения имени.
-В будущем авторизацию нужно строить на серверной проверке исходной строки `initData` —
-данным из `initDataUnsafe` доверять нельзя.
+`Telegram.WebApp.initDataUnsafe` используется только для отображения имени.
+Авторизация выполняется backend-сервером по исходной строке `initData`; данным из
+`initDataUnsafe` сервер не доверяет.
 
 ## Backend
 
 Serverpod/PostgreSQL-проект находится в [`backend/`](backend/README.md). Он
 запускается независимо от Flutter Web; инструкции локальной разработки и
 генерации клиента находятся в backend README.
+
+Адрес API передаётся Flutter Web во время сборки:
+
+```sh
+flutter build web --release --dart-define=BACKEND_URL=https://api.example.com/
+```
+
+Без `BACKEND_URL` приложение продолжает работать в режиме локального
+предпросмотра, но синхронизация отключена. Для GitHub Pages задайте repository
+variable `BACKEND_URL` в **Settings → Secrets and variables → Actions → Variables**.

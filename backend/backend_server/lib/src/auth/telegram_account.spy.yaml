@@ -1,0 +1,21 @@
+### A verified Telegram identity linked to a Serverpod auth user.
+class: TelegramAccount
+serverOnly: true
+table: telegram_account
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  telegramUserId: int
+  firstName: String
+  lastName: String?
+  username: String?
+  languageCode: String?
+  authUser: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+  createdAt: DateTime, defaultModel=now
+  updatedAt: DateTime, defaultModel=now
+indexes:
+  telegram_account_telegram_user_id_idx:
+    fields: telegramUserId
+    unique: true
+  telegram_account_auth_user_id_idx:
+    fields: authUserId
+    unique: true
