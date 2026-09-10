@@ -26,6 +26,9 @@ dart bin/main.dart --apply-migrations
 API по умолчанию доступен на `http://localhost:8080`, web server — на
 `http://localhost:8082`.
 
+Endpoint расписания требует JWT-сессию, полученную через проверенный Telegram
+`initData`. Все запросы автоматически ограничены текущим `authUserId`.
+
 Остановка инфраструктуры:
 
 ```sh

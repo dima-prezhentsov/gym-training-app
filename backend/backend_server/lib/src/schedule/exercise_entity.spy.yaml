@@ -1,0 +1,15 @@
+### An exercise within a persisted training day.
+class: ExerciseEntity
+serverOnly: true
+table: exercise
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  publicId: String
+  name: String
+  description: String
+  muscleGroup: String
+  position: int
+  trainingDay: TrainingDayEntity?, relation(onDelete=Cascade)
+indexes:
+  exercise_training_day_id_idx:
+    fields: trainingDayId

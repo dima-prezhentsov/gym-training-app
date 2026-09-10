@@ -1,0 +1,15 @@
+### The single editable training schedule owned by an authenticated user.
+class: TrainingScheduleEntity
+serverOnly: true
+table: training_schedule
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  publicId: String
+  name: String
+  authUser: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+  createdAt: DateTime, defaultModel=now
+  updatedAt: DateTime, defaultModel=now
+indexes:
+  training_schedule_auth_user_id_idx:
+    fields: authUserId
+    unique: true

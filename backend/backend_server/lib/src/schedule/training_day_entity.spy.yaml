@@ -1,0 +1,15 @@
+### A day within a persisted training schedule.
+class: TrainingDayEntity
+serverOnly: true
+table: training_day
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  publicId: String
+  name: String
+  weekday: int
+  estimatedDurationMinutes: int
+  position: int
+  schedule: TrainingScheduleEntity?, relation(onDelete=Cascade)
+indexes:
+  training_day_schedule_id_idx:
+    fields: scheduleId

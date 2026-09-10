@@ -15,10 +15,13 @@ import 'package:serverpod/serverpod.dart' as _i1;
 import '../auth/jwt_refresh_endpoint.dart' as _i2;
 import '../auth/telegram_auth_endpoint.dart' as _i3;
 import '../greetings/greeting_endpoint.dart' as _i4;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
-    as _i5;
-import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+import '../schedule/training_schedule_endpoint.dart' as _i5;
+import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
     as _i6;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i7;
+import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+    as _i8;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -40,6 +43,12 @@ class Endpoints extends _i1.EndpointDispatch {
         ..initialize(
           server,
           'greeting',
+          null,
+        ),
+      'trainingSchedule': _i5.TrainingScheduleEndpoint()
+        ..initialize(
+          server,
+          'trainingSchedule',
           null,
         ),
     };
@@ -117,9 +126,60 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
-    modules['serverpod_auth_core'] = _i5.Endpoints()
+    connectors['trainingSchedule'] = _i1.EndpointConnector(
+      name: 'trainingSchedule',
+      endpoint: endpoints['trainingSchedule']!,
+      methodConnectors: {
+        'get': _i1.MethodConnector(
+          name: 'get',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['trainingSchedule']
+                          as _i5.TrainingScheduleEndpoint)
+                      .get(session),
+        ),
+        'save': _i1.MethodConnector(
+          name: 'save',
+          params: {
+            'schedule': _i1.ParameterDescription(
+              name: 'schedule',
+              type: _i1.getType<_i6.TrainingScheduleDto>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['trainingSchedule']
+                          as _i5.TrainingScheduleEndpoint)
+                      .save(
+                        session,
+                        params['schedule'],
+                      ),
+        ),
+        'delete': _i1.MethodConnector(
+          name: 'delete',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['trainingSchedule']
+                          as _i5.TrainingScheduleEndpoint)
+                      .delete(session),
+        ),
+      },
+    );
+    modules['serverpod_auth_core'] = _i7.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_idp'] = _i6.Endpoints()
+    modules['serverpod_auth_idp'] = _i8.Endpoints()
       ..initializeEndpoints(server);
   }
 }

@@ -1,0 +1,8 @@
+### API representation of a training day.
+class: TrainingDayDto
+fields:
+  id: String
+  name: String
+  weekday: int
+  estimatedDurationMinutes: int
+  exercises: List<ExerciseDto>

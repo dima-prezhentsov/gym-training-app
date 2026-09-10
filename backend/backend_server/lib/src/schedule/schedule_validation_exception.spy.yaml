@@ -1,0 +1,4 @@
+### The submitted schedule aggregate contains invalid or duplicate data.
+exception: ScheduleValidationException
+fields:
+  reason: String

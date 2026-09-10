@@ -4,3 +4,7 @@ telegramAuth:
   - authenticate:
 greeting:
   - hello:
+trainingSchedule:
+  - get:
+  - save:
+  - delete:

@@ -1,0 +1,6 @@
+### API representation of a user's training schedule.
+class: TrainingScheduleDto
+fields:
+  id: String
+  name: String
+  days: List<TrainingDayDto>

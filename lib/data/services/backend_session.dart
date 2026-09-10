@@ -32,6 +32,7 @@ class BackendSession extends ChangeNotifier {
   BackendSessionStatus get status => _status;
   Object? get error => _error;
   bool get isAuthenticated => _status == BackendSessionStatus.authenticated;
+  Future<void> get ready => _initialization ?? Future.value();
 
   Future<void> initialize(TelegramLaunchData telegram) {
     return _initialization ??= _initialize(telegram);

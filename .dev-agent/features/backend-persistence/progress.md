@@ -1,8 +1,8 @@
 # Backend persistence — прогресс
 
-- Часть: 2 из 4 выполнена.
-- Следующая: `part-3.md` — постоянное расписание.
-- Артефакты: HMAC/freshness-валидатор Telegram `initData`, `telegram_account`, auth endpoint, JWT-сессия, Flutter `BackendSession`, compile-time `BACKEND_URL` и additive migration.
-- Проверено: подмена, протухшие и неполные данные отклоняются; повторный вход одного Telegram ID использует того же auth user; Flutter preview работает без backend.
-- Изменилось в плане: шаблонные IDP-таблицы сохранены в схеме для безопасной additive migration, но email endpoint и provider не публикуются приложением.
+- Часть: 3 из 4 выполнена.
+- Следующая: `part-4.md` — постоянная история и deploy backend.
+- Артефакты: PostgreSQL-модели schedule/day/exercise, owner-only endpoint, generated client contract, Flutter Serverpod repository и mapping, стартовое расписание нового пользователя.
+- Проверено: aggregate round-trip, server validation, изоляция и удаление данных двух auth users; Flutter domain/API mapping; существующий in-memory preview сохранён.
+- Изменилось в плане: при первом входе API repository сохраняет общий demo schedule вместо пустого, пока главный overview остаётся demo; это сохраняет рабочей кнопку старта тренировки.
 - Не делать снова: phases 1–3 завершены; архитектура и разбивка закреплены в `spec.md`.

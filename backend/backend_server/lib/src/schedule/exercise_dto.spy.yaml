@@ -1,0 +1,7 @@
+### API representation of an exercise.
+class: ExerciseDto
+fields:
+  id: String
+  name: String
+  description: String
+  muscleGroup: String
