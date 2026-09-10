@@ -1,0 +1,5 @@
+class: SetRecordDto
+fields:
+  id: String
+  repetitions: int
+  weightKg: double

@@ -14,16 +14,26 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'auth/telegram_authentication_exception.dart' as _i2;
 import 'greetings/greeting.dart' as _i3;
-import 'schedule/exercise_dto.dart' as _i4;
-import 'schedule/schedule_validation_exception.dart' as _i5;
-import 'schedule/training_day_dto.dart' as _i6;
-import 'schedule/training_schedule_dto.dart' as _i7;
+import 'history/exercise_record_dto.dart' as _i4;
+import 'history/set_record_dto.dart' as _i5;
+import 'history/workout_history_validation_exception.dart' as _i6;
+import 'history/workout_record_dto.dart' as _i7;
+import 'schedule/exercise_dto.dart' as _i8;
+import 'schedule/schedule_validation_exception.dart' as _i9;
+import 'schedule/training_day_dto.dart' as _i10;
+import 'schedule/training_schedule_dto.dart' as _i11;
+import 'package:backend_client/src/protocol/history/workout_record_dto.dart'
+    as _i12;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i8;
+    as _i13;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i9;
+    as _i14;
 export 'auth/telegram_authentication_exception.dart';
 export 'greetings/greeting.dart';
+export 'history/exercise_record_dto.dart';
+export 'history/set_record_dto.dart';
+export 'history/workout_history_validation_exception.dart';
+export 'history/workout_record_dto.dart';
 export 'schedule/exercise_dto.dart';
 export 'schedule/schedule_validation_exception.dart';
 export 'schedule/training_day_dto.dart';
@@ -70,17 +80,29 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i3.Greeting) {
       return _i3.Greeting.fromJson(data) as T;
     }
-    if (t == _i4.ExerciseDto) {
-      return _i4.ExerciseDto.fromJson(data) as T;
+    if (t == _i4.ExerciseRecordDto) {
+      return _i4.ExerciseRecordDto.fromJson(data) as T;
     }
-    if (t == _i5.ScheduleValidationException) {
-      return _i5.ScheduleValidationException.fromJson(data) as T;
+    if (t == _i5.SetRecordDto) {
+      return _i5.SetRecordDto.fromJson(data) as T;
     }
-    if (t == _i6.TrainingDayDto) {
-      return _i6.TrainingDayDto.fromJson(data) as T;
+    if (t == _i6.WorkoutHistoryValidationException) {
+      return _i6.WorkoutHistoryValidationException.fromJson(data) as T;
     }
-    if (t == _i7.TrainingScheduleDto) {
-      return _i7.TrainingScheduleDto.fromJson(data) as T;
+    if (t == _i7.WorkoutRecordDto) {
+      return _i7.WorkoutRecordDto.fromJson(data) as T;
+    }
+    if (t == _i8.ExerciseDto) {
+      return _i8.ExerciseDto.fromJson(data) as T;
+    }
+    if (t == _i9.ScheduleValidationException) {
+      return _i9.ScheduleValidationException.fromJson(data) as T;
+    }
+    if (t == _i10.TrainingDayDto) {
+      return _i10.TrainingDayDto.fromJson(data) as T;
+    }
+    if (t == _i11.TrainingScheduleDto) {
+      return _i11.TrainingScheduleDto.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.TelegramAuthenticationException?>()) {
       return (data != null
@@ -91,37 +113,70 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i3.Greeting?>()) {
       return (data != null ? _i3.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i4.ExerciseDto?>()) {
-      return (data != null ? _i4.ExerciseDto.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i4.ExerciseRecordDto?>()) {
+      return (data != null ? _i4.ExerciseRecordDto.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i5.ScheduleValidationException?>()) {
+    if (t == _i1.getType<_i5.SetRecordDto?>()) {
+      return (data != null ? _i5.SetRecordDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i6.WorkoutHistoryValidationException?>()) {
       return (data != null
-              ? _i5.ScheduleValidationException.fromJson(data)
+              ? _i6.WorkoutHistoryValidationException.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i6.TrainingDayDto?>()) {
-      return (data != null ? _i6.TrainingDayDto.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i7.WorkoutRecordDto?>()) {
+      return (data != null ? _i7.WorkoutRecordDto.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i7.TrainingScheduleDto?>()) {
-      return (data != null ? _i7.TrainingScheduleDto.fromJson(data) : null)
+    if (t == _i1.getType<_i8.ExerciseDto?>()) {
+      return (data != null ? _i8.ExerciseDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i9.ScheduleValidationException?>()) {
+      return (data != null
+              ? _i9.ScheduleValidationException.fromJson(data)
+              : null)
           as T;
     }
-    if (t == List<_i4.ExerciseDto>) {
-      return (data as List).map((e) => deserialize<_i4.ExerciseDto>(e)).toList()
+    if (t == _i1.getType<_i10.TrainingDayDto?>()) {
+      return (data != null ? _i10.TrainingDayDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i11.TrainingScheduleDto?>()) {
+      return (data != null ? _i11.TrainingScheduleDto.fromJson(data) : null)
           as T;
     }
-    if (t == List<_i6.TrainingDayDto>) {
+    if (t == List<_i5.SetRecordDto>) {
       return (data as List)
-              .map((e) => deserialize<_i6.TrainingDayDto>(e))
+              .map((e) => deserialize<_i5.SetRecordDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i4.ExerciseRecordDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i4.ExerciseRecordDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i8.ExerciseDto>) {
+      return (data as List).map((e) => deserialize<_i8.ExerciseDto>(e)).toList()
+          as T;
+    }
+    if (t == List<_i10.TrainingDayDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i10.TrainingDayDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i12.WorkoutRecordDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i12.WorkoutRecordDto>(e))
               .toList()
           as T;
     }
     try {
-      return _i8.Protocol().deserialize<T>(data, t);
+      return _i13.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i9.Protocol().deserialize<T>(data, t);
+      return _i14.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -130,10 +185,15 @@ class Protocol extends _i1.SerializationManager {
     return switch (type) {
       _i2.TelegramAuthenticationException => 'TelegramAuthenticationException',
       _i3.Greeting => 'Greeting',
-      _i4.ExerciseDto => 'ExerciseDto',
-      _i5.ScheduleValidationException => 'ScheduleValidationException',
-      _i6.TrainingDayDto => 'TrainingDayDto',
-      _i7.TrainingScheduleDto => 'TrainingScheduleDto',
+      _i4.ExerciseRecordDto => 'ExerciseRecordDto',
+      _i5.SetRecordDto => 'SetRecordDto',
+      _i6.WorkoutHistoryValidationException =>
+        'WorkoutHistoryValidationException',
+      _i7.WorkoutRecordDto => 'WorkoutRecordDto',
+      _i8.ExerciseDto => 'ExerciseDto',
+      _i9.ScheduleValidationException => 'ScheduleValidationException',
+      _i10.TrainingDayDto => 'TrainingDayDto',
+      _i11.TrainingScheduleDto => 'TrainingScheduleDto',
       _ => null,
     };
   }
@@ -152,20 +212,28 @@ class Protocol extends _i1.SerializationManager {
         return 'TelegramAuthenticationException';
       case _i3.Greeting():
         return 'Greeting';
-      case _i4.ExerciseDto():
+      case _i4.ExerciseRecordDto():
+        return 'ExerciseRecordDto';
+      case _i5.SetRecordDto():
+        return 'SetRecordDto';
+      case _i6.WorkoutHistoryValidationException():
+        return 'WorkoutHistoryValidationException';
+      case _i7.WorkoutRecordDto():
+        return 'WorkoutRecordDto';
+      case _i8.ExerciseDto():
         return 'ExerciseDto';
-      case _i5.ScheduleValidationException():
+      case _i9.ScheduleValidationException():
         return 'ScheduleValidationException';
-      case _i6.TrainingDayDto():
+      case _i10.TrainingDayDto():
         return 'TrainingDayDto';
-      case _i7.TrainingScheduleDto():
+      case _i11.TrainingScheduleDto():
         return 'TrainingScheduleDto';
     }
-    className = _i8.Protocol().getClassNameForObject(data);
+    className = _i13.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
-    className = _i9.Protocol().getClassNameForObject(data);
+    className = _i14.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
@@ -184,25 +252,37 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'Greeting') {
       return deserialize<_i3.Greeting>(data['data']);
     }
+    if (dataClassName == 'ExerciseRecordDto') {
+      return deserialize<_i4.ExerciseRecordDto>(data['data']);
+    }
+    if (dataClassName == 'SetRecordDto') {
+      return deserialize<_i5.SetRecordDto>(data['data']);
+    }
+    if (dataClassName == 'WorkoutHistoryValidationException') {
+      return deserialize<_i6.WorkoutHistoryValidationException>(data['data']);
+    }
+    if (dataClassName == 'WorkoutRecordDto') {
+      return deserialize<_i7.WorkoutRecordDto>(data['data']);
+    }
     if (dataClassName == 'ExerciseDto') {
-      return deserialize<_i4.ExerciseDto>(data['data']);
+      return deserialize<_i8.ExerciseDto>(data['data']);
     }
     if (dataClassName == 'ScheduleValidationException') {
-      return deserialize<_i5.ScheduleValidationException>(data['data']);
+      return deserialize<_i9.ScheduleValidationException>(data['data']);
     }
     if (dataClassName == 'TrainingDayDto') {
-      return deserialize<_i6.TrainingDayDto>(data['data']);
+      return deserialize<_i10.TrainingDayDto>(data['data']);
     }
     if (dataClassName == 'TrainingScheduleDto') {
-      return deserialize<_i7.TrainingScheduleDto>(data['data']);
+      return deserialize<_i11.TrainingScheduleDto>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i8.Protocol().deserializeByClassName(data);
+      return _i13.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i9.Protocol().deserializeByClassName(data);
+      return _i14.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -217,10 +297,10 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i8.Protocol().mapRecordToJson(record);
+      return _i13.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i9.Protocol().mapRecordToJson(record);
+      return _i14.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

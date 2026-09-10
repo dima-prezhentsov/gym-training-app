@@ -4,6 +4,9 @@ telegramAuth:
   - authenticate:
 greeting:
   - hello:
+workoutHistory:
+  - list:
+  - save:
 trainingSchedule:
   - get:
   - save:

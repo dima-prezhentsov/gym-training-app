@@ -1,0 +1,13 @@
+class: SetRecordEntity
+serverOnly: true
+table: set_record
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  publicId: String
+  repetitions: int
+  weightKg: double
+  position: int
+  exerciseRecord: ExerciseRecordEntity?, relation(onDelete=Cascade)
+indexes:
+  set_record_exercise_record_id_idx:
+    fields: exerciseRecordId

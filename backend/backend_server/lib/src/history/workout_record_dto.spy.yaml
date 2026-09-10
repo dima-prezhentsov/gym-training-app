@@ -1,0 +1,8 @@
+class: WorkoutRecordDto
+fields:
+  id: String
+  trainingDayId: String
+  title: String
+  startedAt: DateTime
+  completedAt: DateTime
+  exercises: List<ExerciseRecordDto>

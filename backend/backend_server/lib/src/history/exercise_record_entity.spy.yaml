@@ -1,0 +1,13 @@
+class: ExerciseRecordEntity
+serverOnly: true
+table: exercise_record
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  exercisePublicId: String
+  name: String
+  muscleGroup: String
+  position: int
+  workout: WorkoutRecordEntity?, relation(onDelete=Cascade)
+indexes:
+  exercise_record_workout_id_idx:
+    fields: workoutId

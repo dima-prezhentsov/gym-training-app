@@ -1,0 +1,14 @@
+class: WorkoutRecordEntity
+serverOnly: true
+table: workout_record
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  publicId: String
+  trainingDayPublicId: String
+  title: String
+  startedAt: DateTime
+  completedAt: DateTime
+  authUser: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+indexes:
+  workout_record_auth_user_id_idx:
+    fields: authUserId

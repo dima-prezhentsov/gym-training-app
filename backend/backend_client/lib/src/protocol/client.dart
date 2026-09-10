@@ -16,11 +16,13 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:backend_client/src/protocol/greetings/greeting.dart' as _i4;
-import 'package:backend_client/src/protocol/schedule/training_schedule_dto.dart'
+import 'package:backend_client/src/protocol/history/workout_record_dto.dart'
     as _i5;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+import 'package:backend_client/src/protocol/schedule/training_schedule_dto.dart'
     as _i6;
-import 'protocol.dart' as _i7;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+    as _i7;
+import 'protocol.dart' as _i8;
 
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
@@ -94,21 +96,43 @@ class EndpointGreeting extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointWorkoutHistory extends _i2.EndpointRef {
+  EndpointWorkoutHistory(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'workoutHistory';
+
+  _i3.Future<List<_i5.WorkoutRecordDto>> list() =>
+      caller.callServerEndpoint<List<_i5.WorkoutRecordDto>>(
+        'workoutHistory',
+        'list',
+        {},
+      );
+
+  _i3.Future<_i5.WorkoutRecordDto> save(_i5.WorkoutRecordDto record) =>
+      caller.callServerEndpoint<_i5.WorkoutRecordDto>(
+        'workoutHistory',
+        'save',
+        {'record': record},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointTrainingSchedule extends _i2.EndpointRef {
   EndpointTrainingSchedule(_i2.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'trainingSchedule';
 
-  _i3.Future<_i5.TrainingScheduleDto?> get() =>
-      caller.callServerEndpoint<_i5.TrainingScheduleDto?>(
+  _i3.Future<_i6.TrainingScheduleDto?> get() =>
+      caller.callServerEndpoint<_i6.TrainingScheduleDto?>(
         'trainingSchedule',
         'get',
         {},
       );
 
-  _i3.Future<_i5.TrainingScheduleDto> save(_i5.TrainingScheduleDto schedule) =>
-      caller.callServerEndpoint<_i5.TrainingScheduleDto>(
+  _i3.Future<_i6.TrainingScheduleDto> save(_i6.TrainingScheduleDto schedule) =>
+      caller.callServerEndpoint<_i6.TrainingScheduleDto>(
         'trainingSchedule',
         'save',
         {'schedule': schedule},
@@ -124,12 +148,12 @@ class EndpointTrainingSchedule extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_core = _i1.Caller(client);
-    serverpod_auth_idp = _i6.Caller(client);
+    serverpod_auth_idp = _i7.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_core;
 
-  late final _i6.Caller serverpod_auth_idp;
+  late final _i7.Caller serverpod_auth_idp;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -152,7 +176,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i7.Protocol(),
+         _i8.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -164,6 +188,7 @@ class Client extends _i2.ServerpodClientShared {
     jwtRefresh = EndpointJwtRefresh(this);
     telegramAuth = EndpointTelegramAuth(this);
     greeting = EndpointGreeting(this);
+    workoutHistory = EndpointWorkoutHistory(this);
     trainingSchedule = EndpointTrainingSchedule(this);
     modules = Modules(this);
   }
@@ -174,6 +199,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointGreeting greeting;
 
+  late final EndpointWorkoutHistory workoutHistory;
+
   late final EndpointTrainingSchedule trainingSchedule;
 
   late final Modules modules;
@@ -183,6 +210,7 @@ class Client extends _i2.ServerpodClientShared {
     'jwtRefresh': jwtRefresh,
     'telegramAuth': telegramAuth,
     'greeting': greeting,
+    'workoutHistory': workoutHistory,
     'trainingSchedule': trainingSchedule,
   };
 

@@ -1,0 +1,3 @@
+exception: WorkoutHistoryValidationException
+fields:
+  reason: String

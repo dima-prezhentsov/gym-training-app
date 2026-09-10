@@ -1,0 +1,6 @@
+class: ExerciseRecordDto
+fields:
+  exerciseId: String
+  name: String
+  muscleGroup: String
+  sets: List<SetRecordDto>

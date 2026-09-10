@@ -20,16 +20,32 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
 import 'auth/telegram_account.dart' as _i5;
 import 'auth/telegram_authentication_exception.dart' as _i6;
 import 'greetings/greeting.dart' as _i7;
-import 'schedule/exercise_dto.dart' as _i8;
-import 'schedule/exercise_entity.dart' as _i9;
-import 'schedule/schedule_validation_exception.dart' as _i10;
-import 'schedule/training_day_dto.dart' as _i11;
-import 'schedule/training_day_entity.dart' as _i12;
-import 'schedule/training_schedule_dto.dart' as _i13;
-import 'schedule/training_schedule_entity.dart' as _i14;
+import 'history/exercise_record_dto.dart' as _i8;
+import 'history/exercise_record_entity.dart' as _i9;
+import 'history/set_record_dto.dart' as _i10;
+import 'history/set_record_entity.dart' as _i11;
+import 'history/workout_history_validation_exception.dart' as _i12;
+import 'history/workout_record_dto.dart' as _i13;
+import 'history/workout_record_entity.dart' as _i14;
+import 'schedule/exercise_dto.dart' as _i15;
+import 'schedule/exercise_entity.dart' as _i16;
+import 'schedule/schedule_validation_exception.dart' as _i17;
+import 'schedule/training_day_dto.dart' as _i18;
+import 'schedule/training_day_entity.dart' as _i19;
+import 'schedule/training_schedule_dto.dart' as _i20;
+import 'schedule/training_schedule_entity.dart' as _i21;
+import 'package:backend_server/src/generated/history/workout_record_dto.dart'
+    as _i22;
 export 'auth/telegram_account.dart';
 export 'auth/telegram_authentication_exception.dart';
 export 'greetings/greeting.dart';
+export 'history/exercise_record_dto.dart';
+export 'history/exercise_record_entity.dart';
+export 'history/set_record_dto.dart';
+export 'history/set_record_entity.dart';
+export 'history/workout_history_validation_exception.dart';
+export 'history/workout_record_dto.dart';
+export 'history/workout_record_entity.dart';
 export 'schedule/exercise_dto.dart';
 export 'schedule/exercise_entity.dart';
 export 'schedule/schedule_validation_exception.dart';
@@ -129,6 +145,178 @@ class Protocol extends _i1.SerializationManagerServer {
             _i2.IndexElementDefinition(
               type: _i2.IndexElementDefinitionType.column,
               definition: 'trainingDayId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'exercise_record',
+      dartName: 'ExerciseRecordEntity',
+      schema: 'public',
+      module: 'backend',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'gen_random_uuid_v7()',
+        ),
+        _i2.ColumnDefinition(
+          name: 'exercisePublicId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'name',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'muscleGroup',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'position',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'workoutId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'exercise_record_fk_0',
+          columns: ['workoutId'],
+          referenceTable: 'workout_record',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'exercise_record_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'exercise_record_workout_id_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'workoutId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'set_record',
+      dartName: 'SetRecordEntity',
+      schema: 'public',
+      module: 'backend',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'gen_random_uuid_v7()',
+        ),
+        _i2.ColumnDefinition(
+          name: 'publicId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'repetitions',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'weightKg',
+          columnType: _i2.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _i2.ColumnDefinition(
+          name: 'position',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'exerciseRecordId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'set_record_fk_0',
+          columns: ['exerciseRecordId'],
+          referenceTable: 'exercise_record',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'set_record_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'set_record_exercise_record_id_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'exerciseRecordId',
             ),
           ],
           type: 'btree',
@@ -433,6 +621,98 @@ class Protocol extends _i1.SerializationManagerServer {
       ],
       managed: true,
     ),
+    _i2.TableDefinition(
+      name: 'workout_record',
+      dartName: 'WorkoutRecordEntity',
+      schema: 'public',
+      module: 'backend',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'gen_random_uuid_v7()',
+        ),
+        _i2.ColumnDefinition(
+          name: 'publicId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'trainingDayPublicId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'title',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'startedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'completedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'authUserId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'workout_record_fk_0',
+          columns: ['authUserId'],
+          referenceTable: 'serverpod_auth_core_user',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'workout_record_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'workout_record_auth_user_id_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'authUserId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     ..._i3.Protocol.targetTableDefinitions,
     ..._i4.Protocol.targetTableDefinitions,
     ..._i2.Protocol.targetTableDefinitions,
@@ -474,26 +754,47 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i7.Greeting) {
       return _i7.Greeting.fromJson(data) as T;
     }
-    if (t == _i8.ExerciseDto) {
-      return _i8.ExerciseDto.fromJson(data) as T;
+    if (t == _i8.ExerciseRecordDto) {
+      return _i8.ExerciseRecordDto.fromJson(data) as T;
     }
-    if (t == _i9.ExerciseEntity) {
-      return _i9.ExerciseEntity.fromJson(data) as T;
+    if (t == _i9.ExerciseRecordEntity) {
+      return _i9.ExerciseRecordEntity.fromJson(data) as T;
     }
-    if (t == _i10.ScheduleValidationException) {
-      return _i10.ScheduleValidationException.fromJson(data) as T;
+    if (t == _i10.SetRecordDto) {
+      return _i10.SetRecordDto.fromJson(data) as T;
     }
-    if (t == _i11.TrainingDayDto) {
-      return _i11.TrainingDayDto.fromJson(data) as T;
+    if (t == _i11.SetRecordEntity) {
+      return _i11.SetRecordEntity.fromJson(data) as T;
     }
-    if (t == _i12.TrainingDayEntity) {
-      return _i12.TrainingDayEntity.fromJson(data) as T;
+    if (t == _i12.WorkoutHistoryValidationException) {
+      return _i12.WorkoutHistoryValidationException.fromJson(data) as T;
     }
-    if (t == _i13.TrainingScheduleDto) {
-      return _i13.TrainingScheduleDto.fromJson(data) as T;
+    if (t == _i13.WorkoutRecordDto) {
+      return _i13.WorkoutRecordDto.fromJson(data) as T;
     }
-    if (t == _i14.TrainingScheduleEntity) {
-      return _i14.TrainingScheduleEntity.fromJson(data) as T;
+    if (t == _i14.WorkoutRecordEntity) {
+      return _i14.WorkoutRecordEntity.fromJson(data) as T;
+    }
+    if (t == _i15.ExerciseDto) {
+      return _i15.ExerciseDto.fromJson(data) as T;
+    }
+    if (t == _i16.ExerciseEntity) {
+      return _i16.ExerciseEntity.fromJson(data) as T;
+    }
+    if (t == _i17.ScheduleValidationException) {
+      return _i17.ScheduleValidationException.fromJson(data) as T;
+    }
+    if (t == _i18.TrainingDayDto) {
+      return _i18.TrainingDayDto.fromJson(data) as T;
+    }
+    if (t == _i19.TrainingDayEntity) {
+      return _i19.TrainingDayEntity.fromJson(data) as T;
+    }
+    if (t == _i20.TrainingScheduleDto) {
+      return _i20.TrainingScheduleDto.fromJson(data) as T;
+    }
+    if (t == _i21.TrainingScheduleEntity) {
+      return _i21.TrainingScheduleEntity.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.TelegramAccount?>()) {
       return (data != null ? _i5.TelegramAccount.fromJson(data) : null) as T;
@@ -507,39 +808,85 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i7.Greeting?>()) {
       return (data != null ? _i7.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i8.ExerciseDto?>()) {
-      return (data != null ? _i8.ExerciseDto.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i8.ExerciseRecordDto?>()) {
+      return (data != null ? _i8.ExerciseRecordDto.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i9.ExerciseEntity?>()) {
-      return (data != null ? _i9.ExerciseEntity.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.ExerciseRecordEntity?>()) {
+      return (data != null ? _i9.ExerciseRecordEntity.fromJson(data) : null)
+          as T;
     }
-    if (t == _i1.getType<_i10.ScheduleValidationException?>()) {
+    if (t == _i1.getType<_i10.SetRecordDto?>()) {
+      return (data != null ? _i10.SetRecordDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i11.SetRecordEntity?>()) {
+      return (data != null ? _i11.SetRecordEntity.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i12.WorkoutHistoryValidationException?>()) {
       return (data != null
-              ? _i10.ScheduleValidationException.fromJson(data)
+              ? _i12.WorkoutHistoryValidationException.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i11.TrainingDayDto?>()) {
-      return (data != null ? _i11.TrainingDayDto.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.WorkoutRecordDto?>()) {
+      return (data != null ? _i13.WorkoutRecordDto.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.TrainingDayEntity?>()) {
-      return (data != null ? _i12.TrainingDayEntity.fromJson(data) : null) as T;
-    }
-    if (t == _i1.getType<_i13.TrainingScheduleDto?>()) {
-      return (data != null ? _i13.TrainingScheduleDto.fromJson(data) : null)
+    if (t == _i1.getType<_i14.WorkoutRecordEntity?>()) {
+      return (data != null ? _i14.WorkoutRecordEntity.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i14.TrainingScheduleEntity?>()) {
-      return (data != null ? _i14.TrainingScheduleEntity.fromJson(data) : null)
+    if (t == _i1.getType<_i15.ExerciseDto?>()) {
+      return (data != null ? _i15.ExerciseDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i16.ExerciseEntity?>()) {
+      return (data != null ? _i16.ExerciseEntity.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i17.ScheduleValidationException?>()) {
+      return (data != null
+              ? _i17.ScheduleValidationException.fromJson(data)
+              : null)
           as T;
     }
-    if (t == List<_i8.ExerciseDto>) {
-      return (data as List).map((e) => deserialize<_i8.ExerciseDto>(e)).toList()
+    if (t == _i1.getType<_i18.TrainingDayDto?>()) {
+      return (data != null ? _i18.TrainingDayDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i19.TrainingDayEntity?>()) {
+      return (data != null ? _i19.TrainingDayEntity.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i20.TrainingScheduleDto?>()) {
+      return (data != null ? _i20.TrainingScheduleDto.fromJson(data) : null)
           as T;
     }
-    if (t == List<_i11.TrainingDayDto>) {
+    if (t == _i1.getType<_i21.TrainingScheduleEntity?>()) {
+      return (data != null ? _i21.TrainingScheduleEntity.fromJson(data) : null)
+          as T;
+    }
+    if (t == List<_i10.SetRecordDto>) {
       return (data as List)
-              .map((e) => deserialize<_i11.TrainingDayDto>(e))
+              .map((e) => deserialize<_i10.SetRecordDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i8.ExerciseRecordDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i8.ExerciseRecordDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i15.ExerciseDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i15.ExerciseDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i18.TrainingDayDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i18.TrainingDayDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i22.WorkoutRecordDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i22.WorkoutRecordDto>(e))
               .toList()
           as T;
     }
@@ -560,13 +907,21 @@ class Protocol extends _i1.SerializationManagerServer {
       _i5.TelegramAccount => 'TelegramAccount',
       _i6.TelegramAuthenticationException => 'TelegramAuthenticationException',
       _i7.Greeting => 'Greeting',
-      _i8.ExerciseDto => 'ExerciseDto',
-      _i9.ExerciseEntity => 'ExerciseEntity',
-      _i10.ScheduleValidationException => 'ScheduleValidationException',
-      _i11.TrainingDayDto => 'TrainingDayDto',
-      _i12.TrainingDayEntity => 'TrainingDayEntity',
-      _i13.TrainingScheduleDto => 'TrainingScheduleDto',
-      _i14.TrainingScheduleEntity => 'TrainingScheduleEntity',
+      _i8.ExerciseRecordDto => 'ExerciseRecordDto',
+      _i9.ExerciseRecordEntity => 'ExerciseRecordEntity',
+      _i10.SetRecordDto => 'SetRecordDto',
+      _i11.SetRecordEntity => 'SetRecordEntity',
+      _i12.WorkoutHistoryValidationException =>
+        'WorkoutHistoryValidationException',
+      _i13.WorkoutRecordDto => 'WorkoutRecordDto',
+      _i14.WorkoutRecordEntity => 'WorkoutRecordEntity',
+      _i15.ExerciseDto => 'ExerciseDto',
+      _i16.ExerciseEntity => 'ExerciseEntity',
+      _i17.ScheduleValidationException => 'ScheduleValidationException',
+      _i18.TrainingDayDto => 'TrainingDayDto',
+      _i19.TrainingDayEntity => 'TrainingDayEntity',
+      _i20.TrainingScheduleDto => 'TrainingScheduleDto',
+      _i21.TrainingScheduleEntity => 'TrainingScheduleEntity',
       _ => null,
     };
   }
@@ -587,19 +942,33 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'TelegramAuthenticationException';
       case _i7.Greeting():
         return 'Greeting';
-      case _i8.ExerciseDto():
+      case _i8.ExerciseRecordDto():
+        return 'ExerciseRecordDto';
+      case _i9.ExerciseRecordEntity():
+        return 'ExerciseRecordEntity';
+      case _i10.SetRecordDto():
+        return 'SetRecordDto';
+      case _i11.SetRecordEntity():
+        return 'SetRecordEntity';
+      case _i12.WorkoutHistoryValidationException():
+        return 'WorkoutHistoryValidationException';
+      case _i13.WorkoutRecordDto():
+        return 'WorkoutRecordDto';
+      case _i14.WorkoutRecordEntity():
+        return 'WorkoutRecordEntity';
+      case _i15.ExerciseDto():
         return 'ExerciseDto';
-      case _i9.ExerciseEntity():
+      case _i16.ExerciseEntity():
         return 'ExerciseEntity';
-      case _i10.ScheduleValidationException():
+      case _i17.ScheduleValidationException():
         return 'ScheduleValidationException';
-      case _i11.TrainingDayDto():
+      case _i18.TrainingDayDto():
         return 'TrainingDayDto';
-      case _i12.TrainingDayEntity():
+      case _i19.TrainingDayEntity():
         return 'TrainingDayEntity';
-      case _i13.TrainingScheduleDto():
+      case _i20.TrainingScheduleDto():
         return 'TrainingScheduleDto';
-      case _i14.TrainingScheduleEntity():
+      case _i21.TrainingScheduleEntity():
         return 'TrainingScheduleEntity';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -632,26 +1001,47 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'Greeting') {
       return deserialize<_i7.Greeting>(data['data']);
     }
+    if (dataClassName == 'ExerciseRecordDto') {
+      return deserialize<_i8.ExerciseRecordDto>(data['data']);
+    }
+    if (dataClassName == 'ExerciseRecordEntity') {
+      return deserialize<_i9.ExerciseRecordEntity>(data['data']);
+    }
+    if (dataClassName == 'SetRecordDto') {
+      return deserialize<_i10.SetRecordDto>(data['data']);
+    }
+    if (dataClassName == 'SetRecordEntity') {
+      return deserialize<_i11.SetRecordEntity>(data['data']);
+    }
+    if (dataClassName == 'WorkoutHistoryValidationException') {
+      return deserialize<_i12.WorkoutHistoryValidationException>(data['data']);
+    }
+    if (dataClassName == 'WorkoutRecordDto') {
+      return deserialize<_i13.WorkoutRecordDto>(data['data']);
+    }
+    if (dataClassName == 'WorkoutRecordEntity') {
+      return deserialize<_i14.WorkoutRecordEntity>(data['data']);
+    }
     if (dataClassName == 'ExerciseDto') {
-      return deserialize<_i8.ExerciseDto>(data['data']);
+      return deserialize<_i15.ExerciseDto>(data['data']);
     }
     if (dataClassName == 'ExerciseEntity') {
-      return deserialize<_i9.ExerciseEntity>(data['data']);
+      return deserialize<_i16.ExerciseEntity>(data['data']);
     }
     if (dataClassName == 'ScheduleValidationException') {
-      return deserialize<_i10.ScheduleValidationException>(data['data']);
+      return deserialize<_i17.ScheduleValidationException>(data['data']);
     }
     if (dataClassName == 'TrainingDayDto') {
-      return deserialize<_i11.TrainingDayDto>(data['data']);
+      return deserialize<_i18.TrainingDayDto>(data['data']);
     }
     if (dataClassName == 'TrainingDayEntity') {
-      return deserialize<_i12.TrainingDayEntity>(data['data']);
+      return deserialize<_i19.TrainingDayEntity>(data['data']);
     }
     if (dataClassName == 'TrainingScheduleDto') {
-      return deserialize<_i13.TrainingScheduleDto>(data['data']);
+      return deserialize<_i20.TrainingScheduleDto>(data['data']);
     }
     if (dataClassName == 'TrainingScheduleEntity') {
-      return deserialize<_i14.TrainingScheduleEntity>(data['data']);
+      return deserialize<_i21.TrainingScheduleEntity>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -691,12 +1081,18 @@ class Protocol extends _i1.SerializationManagerServer {
     switch (t) {
       case _i5.TelegramAccount:
         return _i5.TelegramAccount.t;
-      case _i9.ExerciseEntity:
-        return _i9.ExerciseEntity.t;
-      case _i12.TrainingDayEntity:
-        return _i12.TrainingDayEntity.t;
-      case _i14.TrainingScheduleEntity:
-        return _i14.TrainingScheduleEntity.t;
+      case _i9.ExerciseRecordEntity:
+        return _i9.ExerciseRecordEntity.t;
+      case _i11.SetRecordEntity:
+        return _i11.SetRecordEntity.t;
+      case _i14.WorkoutRecordEntity:
+        return _i14.WorkoutRecordEntity.t;
+      case _i16.ExerciseEntity:
+        return _i16.ExerciseEntity.t;
+      case _i19.TrainingDayEntity:
+        return _i19.TrainingDayEntity.t;
+      case _i21.TrainingScheduleEntity:
+        return _i21.TrainingScheduleEntity.t;
     }
     return null;
   }
