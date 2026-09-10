@@ -2,6 +2,8 @@
 
 Dart backend на Serverpod и PostgreSQL для Telegram Mini App.
 
+Production checklist: [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
 ## Требования
 
 - Dart SDK, совместимый с `backend/pubspec.yaml`;
