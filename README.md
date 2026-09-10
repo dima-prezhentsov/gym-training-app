@@ -32,3 +32,9 @@ Workflow `.github/workflows/deploy-pages.yml` проверяет проект, �
 `Telegram.WebApp.initDataUnsafe` используется только для тестового отображения имени.
 В будущем авторизацию нужно строить на серверной проверке исходной строки `initData` —
 данным из `initDataUnsafe` доверять нельзя.
+
+## Backend
+
+Serverpod/PostgreSQL-проект находится в [`backend/`](backend/README.md). Он
+запускается независимо от Flutter Web; инструкции локальной разработки и
+генерации клиента находятся в backend README.

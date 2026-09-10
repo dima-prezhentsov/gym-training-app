@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "backend_flutter",
+            "cwd": "${workspaceFolder}/backend_flutter",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart"
+        },
+        {
+            "name": "backend_server",
+            "cwd": "${workspaceFolder}/backend_server",
+            "request": "launch",
+            "type": "dart",
+            "preLaunchTask": "docker_compose_up",
+            "program": "bin/main.dart",
+            "env": {
+                "SERVERPOD_PASSWORD_database": "Yot6NUK5jAUKrArhFEwEOk9yispMs11j"
+            },
+            "args": [
+                "--apply-migrations"
+            ]
+        }
+    ],
+    "compounds": [
+        {
+            "name": "backend (full stack)",
+            "configurations": [
+                "backend_server",
+                "backend_flutter"
+            ],
+            "presentation": {
+                "order": 1
+            }
+        }
+    ]
+}
