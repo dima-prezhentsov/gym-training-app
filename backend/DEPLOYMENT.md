@@ -25,7 +25,7 @@ SERVERPOD_DATABASE_HOST=<postgres-host>
 SERVERPOD_DATABASE_PORT=5432
 SERVERPOD_DATABASE_NAME=<database-name>
 SERVERPOD_DATABASE_USER=<database-user>
-SERVERPOD_DATABASE_PASSWORD=<database-password>
+SERVERPOD_PASSWORD_database=<database-password>
 SERVERPOD_DATABASE_REQUIRE_SSL=true
 SERVERPOD_API_SERVER_PUBLIC_HOST=<api-domain-without-scheme>
 SERVERPOD_API_SERVER_PUBLIC_PORT=443
@@ -56,3 +56,34 @@ Pages и метод `POST`.
 Конкретный hosting manifest не добавлен: формат подключения managed PostgreSQL,
 health checks и способ задания secrets различаются между Render, Fly.io,
 Railway и другими платформами.
+
+## Render + Neon
+
+Для бесплатного Render Web Service используйте следующие настройки:
+
+```text
+Language: Docker
+Region: Frankfurt
+Branch: main
+Dockerfile Path: backend/backend_server/Dockerfile
+Docker Build Context Directory: backend
+Compute: Free
+```
+
+Render направляет HTTP-трафик на порт `10000`, поэтому дополнительно задайте:
+
+```text
+SERVERPOD_API_SERVER_PORT=10000
+SERVERPOD_DATABASE_MAX_CONNECTION_COUNT=3
+SERVERPOD_SESSION_CONSOLE_LOG_ENABLED=true
+SERVERPOD_SESSION_CONSOLE_LOG_FORMAT=json
+```
+
+Для постоянного Web Service используйте pooled Neon host из `DATABASE_URL`.
+Для миграций предпочтителен direct host из `DATABASE_URL_UNPOOLED`. На первом
+запуске небольшого Free-инстанса допустимо использовать direct host вместе с
+`SERVERPOD_APPLY_MIGRATIONS=true`, а после применения миграций заменить host на
+pooled-вариант.
+
+Значение `SERVERPOD_API_SERVER_PUBLIC_HOST` должно совпадать с выданным Render
+доменом без `https://`, например `gym-training-api.onrender.com`.
