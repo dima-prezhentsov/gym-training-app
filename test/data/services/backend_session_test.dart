@@ -79,4 +79,52 @@ void main() {
     expect(authenticated, isTrue);
     expect(attempts, 2);
   });
+
+  test(
+    'authenticates a Telegram launch without restoring the stored session',
+    () async {
+      var restoreAttempts = 0;
+      var authenticatedInitData = '';
+      var authenticated = false;
+      final session = BackendSession.testClient(
+        restoreSession: () async {
+          restoreAttempts += 1;
+          throw TimeoutException('Stored session refresh timed out');
+        },
+        authenticateTelegram: (initData) async {
+          authenticatedInitData = initData;
+          authenticated = true;
+        },
+        isAuthenticated: () => authenticated,
+      );
+
+      await session.initialize(telegram);
+
+      expect(restoreAttempts, 0);
+      expect(authenticatedInitData, telegram.initData);
+      expect(session.status, BackendSessionStatus.authenticated);
+    },
+  );
+
+  test('restores the stored session for a browser launch', () async {
+    var restoreAttempts = 0;
+    var telegramAuthAttempts = 0;
+    var authenticated = false;
+    final session = BackendSession.testClient(
+      restoreSession: () async {
+        restoreAttempts += 1;
+        authenticated = true;
+      },
+      authenticateTelegram: (_) async {
+        telegramAuthAttempts += 1;
+      },
+      isAuthenticated: () => authenticated,
+    );
+
+    await session.initialize(const TelegramLaunchData.browser());
+
+    expect(restoreAttempts, 1);
+    expect(telegramAuthAttempts, 0);
+    expect(session.status, BackendSessionStatus.authenticated);
+  });
 }

@@ -9,6 +9,9 @@ enum BackendSessionStatus { disabled, connecting, authenticated, failed }
 
 typedef BackendAuthenticator =
     Future<bool> Function(TelegramLaunchData telegram);
+typedef BackendSessionRestorer = Future<void> Function();
+typedef TelegramSessionAuthenticator = Future<void> Function(String initData);
+typedef BackendAuthenticationState = bool Function();
 
 /// Owns the Serverpod client and authenticates Telegram Mini App launches.
 class BackendSession extends ChangeNotifier {
@@ -18,6 +21,19 @@ class BackendSession extends ChangeNotifier {
   BackendSession.test(BackendAuthenticator authenticator)
     : client = null,
       _authenticator = authenticator;
+
+  @visibleForTesting
+  BackendSession.testClient({
+    required BackendSessionRestorer restoreSession,
+    required TelegramSessionAuthenticator authenticateTelegram,
+    required BackendAuthenticationState isAuthenticated,
+  }) : client = null,
+       _authenticator = ((telegram) => _authenticateWithClient(
+         telegram: telegram,
+         restoreSession: restoreSession,
+         authenticateTelegram: authenticateTelegram,
+         isAuthenticated: isAuthenticated,
+       ));
 
   factory BackendSession.fromEnvironment() {
     const configuredUrl = String.fromEnvironment('BACKEND_URL');
@@ -90,16 +106,33 @@ class BackendSession extends ChangeNotifier {
   }
 
   Future<bool> _authenticate(Client client, TelegramLaunchData telegram) async {
-    await client.auth.initialize();
-    if (telegram.isTelegram) {
-      if (telegram.initData.isEmpty) {
-        throw StateError('Telegram initData is empty');
-      }
-      final authSuccess = await client.telegramAuth.authenticate(
-        telegram.initData,
-      );
-      await client.auth.updateSignedInUser(authSuccess);
-    }
-    return client.auth.isAuthenticated;
+    return _authenticateWithClient(
+      telegram: telegram,
+      restoreSession: () async {
+        await client.auth.initialize();
+      },
+      authenticateTelegram: (initData) async {
+        final authSuccess = await client.telegramAuth.authenticate(initData);
+        await client.auth.updateSignedInUser(authSuccess);
+      },
+      isAuthenticated: () => client.auth.isAuthenticated,
+    );
   }
+}
+
+Future<bool> _authenticateWithClient({
+  required TelegramLaunchData telegram,
+  required BackendSessionRestorer restoreSession,
+  required TelegramSessionAuthenticator authenticateTelegram,
+  required BackendAuthenticationState isAuthenticated,
+}) async {
+  if (telegram.isTelegram) {
+    if (telegram.initData.isEmpty) {
+      throw StateError('Telegram initData is empty');
+    }
+    await authenticateTelegram(telegram.initData);
+  } else {
+    await restoreSession();
+  }
+  return isAuthenticated();
 }
