@@ -6,6 +6,8 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../domain/models/active_workout.dart';
 import '../../../../domain/models/training_overview.dart';
 import '../../../../telegram/telegram_web_app.dart';
+import '../../../core/utils/app_error_feedback.dart';
+import '../../../core/widgets/async_action_button.dart';
 import '../../workout/view_models/workout_view_model.dart';
 import '../view_models/home_view_model.dart';
 
@@ -23,7 +25,12 @@ class HomeScreen extends StatelessWidget {
         HomeStatus.loading => const Center(child: CircularProgressIndicator()),
         HomeStatus.failure => _HomeError(
           message: viewModel.errorMessage ?? 'Что-то пошло не так',
-          onRetry: viewModel.loadOverview,
+          onRetry: () => retryWithErrorFeedback(
+            context,
+            operation: viewModel.loadOverview,
+            errorMessage: () => viewModel.errorMessage,
+            fallbackMessage: 'Не удалось загрузить данные',
+          ),
         ),
         HomeStatus.ready => _HomeContent(overview: viewModel.overview!),
       },
@@ -343,7 +350,7 @@ class _HomeError extends StatelessWidget {
   const _HomeError({required this.message, required this.onRetry});
 
   final String message;
-  final VoidCallback onRetry;
+  final Future<void> Function() onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +362,7 @@ class _HomeError extends StatelessWidget {
           children: [
             Text(message, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Повторить')),
+            AsyncActionButton(label: 'Повторить', onPressed: onRetry),
           ],
         ),
       ),

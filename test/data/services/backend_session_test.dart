@@ -47,4 +47,36 @@ void main() {
     await Future.wait([initialization, retry]);
     expect(session.status, BackendSessionStatus.authenticated);
   });
+
+  test(
+    'does not authenticate again when the session is already active',
+    () async {
+      var attempts = 0;
+      final session = BackendSession.test((_) async {
+        attempts += 1;
+        return true;
+      });
+
+      await session.initialize(telegram);
+      final authenticated = await session.ensureAuthenticated(telegram);
+
+      expect(authenticated, isTrue);
+      expect(attempts, 1);
+    },
+  );
+
+  test('restores authentication only after a failed session', () async {
+    var attempts = 0;
+    final session = BackendSession.test((_) async {
+      attempts += 1;
+      if (attempts == 1) throw StateError('temporary failure');
+      return true;
+    });
+
+    await session.initialize(telegram);
+    final authenticated = await session.ensureAuthenticated(telegram);
+
+    expect(authenticated, isTrue);
+    expect(attempts, 2);
+  });
 }

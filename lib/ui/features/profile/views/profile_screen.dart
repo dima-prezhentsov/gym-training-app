@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../data/services/backend_session.dart';
 import '../../../../telegram/telegram_web_app.dart';
+import '../../../core/utils/app_error_feedback.dart';
+import '../../../core/widgets/async_action_button.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -77,10 +79,19 @@ class ProfileScreen extends StatelessWidget {
           ),
           if (backend.status == BackendSessionStatus.failed) ...[
             const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () => backend.retry(telegram),
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Повторить подключение'),
+            AsyncActionButton(
+              onPressed: () async {
+                final authenticated = await backend.ensureAuthenticated(
+                  telegram,
+                );
+                if (!context.mounted || authenticated) return;
+                showAppErrorSnackBar(
+                  context,
+                  'Не удалось подтвердить Telegram-аккаунт',
+                );
+              },
+              icon: Icons.refresh_rounded,
+              label: 'Повторить подключение',
             ),
           ],
         ],

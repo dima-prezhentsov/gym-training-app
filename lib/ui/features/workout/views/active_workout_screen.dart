@@ -8,6 +8,8 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../domain/models/active_workout.dart';
 import '../../../../domain/models/exercise_record.dart';
 import '../../../../domain/models/training_day.dart';
+import '../../../core/utils/app_error_feedback.dart';
+import '../../../core/widgets/async_action_button.dart';
 import '../../schedule/view_models/schedule_view_model.dart';
 import '../view_models/workout_view_model.dart';
 
@@ -59,7 +61,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         scheduleViewModel.errorMessage != null) {
       return _WorkoutLoadError(
         message: scheduleViewModel.errorMessage!,
-        onRetry: scheduleViewModel.load,
+        onRetry: () => retryWithErrorFeedback(
+          context,
+          operation: scheduleViewModel.load,
+          errorMessage: () => scheduleViewModel.errorMessage,
+          fallbackMessage: 'Не удалось загрузить расписание',
+        ),
         onBack: () => _goBack(context),
       );
     }
@@ -218,8 +225,9 @@ class _WorkoutContent extends StatelessWidget {
     if (!context.mounted) return;
     if (record == null) {
       final message = context.read<WorkoutViewModel>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message ?? 'Не удалось завершить тренировку')),
+      showAppErrorSnackBar(
+        context,
+        message ?? 'Не удалось завершить тренировку',
       );
       return;
     }
@@ -608,7 +616,7 @@ class _WorkoutLoadError extends StatelessWidget {
   });
 
   final String message;
-  final VoidCallback onRetry;
+  final Future<void> Function() onRetry;
   final VoidCallback onBack;
 
   @override
@@ -627,10 +635,7 @@ class _WorkoutLoadError extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 18),
-                FilledButton(
-                  onPressed: onRetry,
-                  child: const Text('Повторить'),
-                ),
+                AsyncActionButton(label: 'Повторить', onPressed: onRetry),
                 TextButton(onPressed: onBack, child: const Text('На главную')),
               ],
             ),

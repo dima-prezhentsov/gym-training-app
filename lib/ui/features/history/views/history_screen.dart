@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../domain/models/workout_record.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/utils/app_error_feedback.dart';
+import '../../../core/widgets/async_action_button.dart';
 import '../../workout/view_models/workout_view_model.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -44,7 +46,12 @@ class _HistoryContent extends StatelessWidget {
         const Center(child: CircularProgressIndicator()),
       WorkoutHistoryStatus.failure => _HistoryError(
         message: viewModel.errorMessage ?? 'Не удалось загрузить историю',
-        onRetry: viewModel.loadHistory,
+        onRetry: () => retryWithErrorFeedback(
+          context,
+          operation: viewModel.loadHistory,
+          errorMessage: () => viewModel.errorMessage,
+          fallbackMessage: 'Не удалось загрузить историю',
+        ),
       ),
       WorkoutHistoryStatus.ready when viewModel.history.isEmpty =>
         const EmptyState(
@@ -241,7 +248,7 @@ class _HistoryError extends StatelessWidget {
   const _HistoryError({required this.message, required this.onRetry});
 
   final String message;
-  final VoidCallback onRetry;
+  final Future<void> Function() onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +260,7 @@ class _HistoryError extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Повторить')),
+            AsyncActionButton(label: 'Повторить', onPressed: onRetry),
           ],
         ),
       ),

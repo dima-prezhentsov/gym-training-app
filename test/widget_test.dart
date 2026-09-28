@@ -234,6 +234,19 @@ void main() {
     expect(find.text('Не удалось загрузить расписание'), findsOneWidget);
     expect(find.text('Повторить'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    await tester.tap(find.text('Повторить'));
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.text('Не удалось загрузить расписание'),
+      ),
+      findsOneWidget,
+    );
   });
 }
 

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../domain/models/training_day.dart';
+import '../../../core/utils/app_error_feedback.dart';
+import '../../../core/widgets/async_action_button.dart';
 import '../view_models/schedule_view_model.dart';
 import '../widgets/training_day_form.dart';
 
@@ -48,7 +50,12 @@ class ScheduleScreen extends StatelessWidget {
             _ScheduleMessage(
               message: viewModel.errorMessage!,
               actionLabel: 'Повторить',
-              onAction: viewModel.load,
+              onAction: () => retryWithErrorFeedback(
+                context,
+                operation: viewModel.load,
+                errorMessage: () => viewModel.errorMessage,
+                fallbackMessage: 'Не удалось загрузить расписание',
+              ),
             )
           else if (schedule == null || schedule.days.isEmpty)
             _ScheduleMessage(
@@ -172,7 +179,7 @@ class _ScheduleMessage extends StatelessWidget {
 
   final String message;
   final String actionLabel;
-  final VoidCallback onAction;
+  final Future<void> Function() onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +190,7 @@ class _ScheduleMessage extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            FilledButton(onPressed: onAction, child: Text(actionLabel)),
+            AsyncActionButton(label: actionLabel, onPressed: onAction),
           ],
         ),
       ),
