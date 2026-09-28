@@ -75,6 +75,14 @@ class ProfileScreen extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          if (backend.status == BackendSessionStatus.failed) ...[
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () => backend.retry(telegram),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Повторить подключение'),
+            ),
+          ],
         ],
       ),
     );
@@ -97,7 +105,7 @@ class ProfileScreen extends StatelessWidget {
       BackendSessionStatus.authenticated =>
         'Telegram-аккаунт подтверждён сервером. Данные готовы к синхронизации.',
       BackendSessionStatus.failed =>
-        'Не удалось подтвердить Telegram-аккаунт. Попробуйте открыть Mini App заново.',
+        'Не удалось подтвердить Telegram-аккаунт. Повторите подключение.',
     };
   }
 }

@@ -1,0 +1,50 @@
+import 'dart:async';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_training_app/data/services/backend_session.dart';
+import 'package:gym_training_app/telegram/telegram_launch_data.dart';
+
+void main() {
+  const telegram = TelegramLaunchData(
+    isTelegram: true,
+    platform: 'ios',
+    version: '9.0',
+    isDarkMode: true,
+    initData: 'query_id=test',
+  );
+
+  test('retries authentication after a failed initialization', () async {
+    var attempts = 0;
+    final session = BackendSession.test((_) async {
+      attempts += 1;
+      if (attempts == 1) throw StateError('temporary failure');
+      return true;
+    });
+
+    await session.initialize(telegram);
+    expect(session.status, BackendSessionStatus.failed);
+
+    await session.retry(telegram);
+
+    expect(attempts, 2);
+    expect(session.status, BackendSessionStatus.authenticated);
+    expect(session.error, isNull);
+  });
+
+  test('does not start another authentication while one is running', () async {
+    var attempts = 0;
+    final result = Completer<bool>();
+    final session = BackendSession.test((_) {
+      attempts += 1;
+      return result.future;
+    });
+
+    final initialization = session.initialize(telegram);
+    final retry = session.retry(telegram);
+
+    expect(attempts, 1);
+    result.complete(true);
+    await Future.wait([initialization, retry]);
+    expect(session.status, BackendSessionStatus.authenticated);
+  });
+}
