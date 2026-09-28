@@ -71,12 +71,6 @@ class ScheduleScreen extends StatelessWidget {
               icon: const Icon(Icons.add_rounded),
               label: const Text('Добавить тренировочный день'),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Изменения сохраняются локально до перезапуска приложения.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
           ],
         ],
       ),

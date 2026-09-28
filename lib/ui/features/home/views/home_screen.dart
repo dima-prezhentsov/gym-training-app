@@ -87,12 +87,6 @@ class _HomeContent extends StatelessWidget {
               const _SectionTitle(title: 'На этой неделе'),
               const SizedBox(height: 14),
               _WeeklyStats(overview: overview),
-              const SizedBox(height: 24),
-              Text(
-                'Демо-данные · ${overview.scheduleName}',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
             ],
           ),
         ),
