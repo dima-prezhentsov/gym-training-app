@@ -116,6 +116,70 @@ void main() {
     expect(overview.exercises.single.points, hasLength(1));
   });
 
+  test('renamed exercise keeps one series and shows its current name', () {
+    final renamedSchedule = schedule.copyWith(
+      days: [
+        schedule.days.first.copyWith(
+          exercises: [
+            schedule.days.first.exercises.single.copyWith(name: 'Жим штанги'),
+          ],
+        ),
+        schedule.days.last,
+      ],
+    );
+    final overview = calculateProgressOverview(
+      schedule: renamedSchedule,
+      history: [
+        _workout(DateTime(2026, 9, 28), exerciseName: 'Жим лёжа'),
+        _workout(DateTime(2026, 10, 5), exerciseName: 'Жим штанги'),
+      ],
+      period: ProgressPeriod.allTime,
+      now: DateTime(2026, 10, 9),
+    );
+
+    expect(overview.exercises, hasLength(1));
+    expect(overview.exercises.single.exerciseId, 'bench');
+    expect(overview.exercises.single.name, 'Жим штанги');
+    expect(overview.exercises.single.points, hasLength(2));
+    expect(overview.personalRecords.single.exerciseName, 'Жим штанги');
+  });
+
+  test('same name with a new ID starts a separate series', () {
+    final replacementSchedule = schedule.copyWith(
+      days: [
+        schedule.days.first.copyWith(
+          exercises: const [
+            Exercise(
+              id: 'new-bench',
+              name: 'Жим лёжа',
+              muscleGroup: MuscleGroup.chest,
+            ),
+          ],
+        ),
+        schedule.days.last,
+      ],
+    );
+    final overview = calculateProgressOverview(
+      schedule: replacementSchedule,
+      history: [
+        _workout(DateTime(2026, 9, 28)),
+        _workout(DateTime(2026, 10, 5), exerciseId: 'new-bench'),
+      ],
+      period: ProgressPeriod.allTime,
+      now: DateTime(2026, 10, 9),
+    );
+
+    expect(overview.exercises, hasLength(2));
+    expect(overview.exercises.map((exercise) => exercise.exerciseId), {
+      'bench',
+      'new-bench',
+    });
+    expect(
+      overview.exercises.every((exercise) => exercise.points.length == 1),
+      isTrue,
+    );
+  });
+
   test('server and in-memory repositories use the same calculation', () async {
     final scheduleRepository = _ScheduleRepository(schedule);
     final workoutRepository = _WorkoutRepository([
@@ -148,6 +212,8 @@ WorkoutRecord _workout(
   DateTime date, {
   double weight = 50,
   int repetitions = 10,
+  String exerciseId = 'bench',
+  String exerciseName = 'Жим лёжа',
 }) {
   final startedAt = DateTime(date.year, date.month, date.day, 18);
   return WorkoutRecord(
@@ -158,8 +224,8 @@ WorkoutRecord _workout(
     completedAt: startedAt.add(const Duration(hours: 1)),
     exercises: [
       ExerciseRecord(
-        exerciseId: 'bench',
-        name: 'Жим лёжа',
+        exerciseId: exerciseId,
+        name: exerciseName,
         muscleGroup: MuscleGroup.chest,
         sets: [
           SetRecord(

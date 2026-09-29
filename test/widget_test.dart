@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/app/app.dart';
+import 'package:gym_training_app/data/repositories/in_memory_training_schedule_repository.dart';
 import 'package:gym_training_app/data/repositories/in_memory_workout_repository.dart';
 import 'package:gym_training_app/data/repositories/progress_repository.dart';
 import 'package:gym_training_app/data/repositories/training_schedule_repository.dart';
@@ -290,6 +291,47 @@ void main() {
 
     expect(find.text('Грудь + трицепс'), findsNothing);
   });
+
+  testWidgets(
+    'renames an exercise without changing its identity or muscle group',
+    (tester) async {
+      final repository = InMemoryTrainingScheduleRepository();
+      await tester.pumpWidget(
+        GymTrainingApp(
+          telegram: const TelegramLaunchData.browser(),
+          scheduleRepository: repository,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Расписание'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Грудь + трицепс'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Переименовать Жим штанги лёжа'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Переименовать упражнение'), findsOneWidget);
+      expect(find.text('Группа мышц'), findsNothing);
+      expect(find.text('Описание (необязательно)'), findsNothing);
+      await tester.enterText(
+        find.byKey(const ValueKey('exercise-name-field')),
+        'Жим лёжа новым именем',
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Сохранить'));
+      await tester.pumpAndSettle();
+      final saveDayButton = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Сохранить изменения'),
+      );
+      saveDayButton.onPressed!();
+      await tester.pumpAndSettle();
+
+      final exercise = (await repository.load()).days.first.exercises.first;
+      expect(exercise.id, 'bench-press');
+      expect(exercise.name, 'Жим лёжа новым именем');
+      expect(exercise.muscleGroup.name, 'chest');
+    },
+  );
 
   testWidgets('records a set and shows the completed workout in history', (
     tester,

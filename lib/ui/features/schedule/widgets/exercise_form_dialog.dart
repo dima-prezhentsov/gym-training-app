@@ -4,7 +4,9 @@ import '../../../../domain/models/exercise.dart';
 import '../../../../domain/models/muscle_group.dart';
 
 class ExerciseFormDialog extends StatefulWidget {
-  const ExerciseFormDialog({super.key});
+  const ExerciseFormDialog({super.key, this.initialExercise});
+
+  final Exercise? initialExercise;
 
   @override
   State<ExerciseFormDialog> createState() => _ExerciseFormDialogState();
@@ -12,9 +14,20 @@ class ExerciseFormDialog extends StatefulWidget {
 
 class _ExerciseFormDialogState extends State<ExerciseFormDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _descriptionController;
   MuscleGroup _muscleGroup = MuscleGroup.chest;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialExercise = widget.initialExercise;
+    _nameController = TextEditingController(text: initialExercise?.name);
+    _descriptionController = TextEditingController(
+      text: initialExercise?.description,
+    );
+    _muscleGroup = initialExercise?.muscleGroup ?? MuscleGroup.chest;
+  }
 
   @override
   void dispose() {
@@ -25,8 +38,9 @@ class _ExerciseFormDialogState extends State<ExerciseFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.initialExercise != null;
     return AlertDialog(
-      title: const Text('Новое упражнение'),
+      title: Text(isEditing ? 'Переименовать упражнение' : 'Новое упражнение'),
       content: SizedBox(
         width: 420,
         child: Form(
@@ -46,34 +60,36 @@ class _ExerciseFormDialogState extends State<ExerciseFormDialog> {
                   ),
                   validator: _requiredName,
                 ),
-                const SizedBox(height: 14),
-                DropdownButtonFormField<MuscleGroup>(
-                  initialValue: _muscleGroup,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Группа мышц'),
-                  items: MuscleGroup.values
-                      .map(
-                        (group) => DropdownMenuItem(
-                          value: group,
-                          child: Text(group.label),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (group) {
-                    if (group != null) _muscleGroup = group;
-                  },
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _descriptionController,
-                  minLines: 2,
-                  maxLines: 4,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    labelText: 'Описание (необязательно)',
-                    hintText: 'Техника или важные подсказки',
+                if (!isEditing) ...[
+                  const SizedBox(height: 14),
+                  DropdownButtonFormField<MuscleGroup>(
+                    initialValue: _muscleGroup,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: 'Группа мышц'),
+                    items: MuscleGroup.values
+                        .map(
+                          (group) => DropdownMenuItem(
+                            value: group,
+                            child: Text(group.label),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (group) {
+                      if (group != null) _muscleGroup = group;
+                    },
                   ),
-                ),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _descriptionController,
+                    minLines: 2,
+                    maxLines: 4,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      labelText: 'Описание (необязательно)',
+                      hintText: 'Техника или важные подсказки',
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -84,7 +100,10 @@ class _ExerciseFormDialogState extends State<ExerciseFormDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Отмена'),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Добавить')),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(isEditing ? 'Сохранить' : 'Добавить'),
+        ),
       ],
     );
   }
@@ -98,6 +117,14 @@ class _ExerciseFormDialogState extends State<ExerciseFormDialog> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+
+    final initialExercise = widget.initialExercise;
+    if (initialExercise != null) {
+      Navigator.of(
+        context,
+      ).pop(initialExercise.copyWith(name: _nameController.text.trim()));
+      return;
+    }
 
     Navigator.of(context).pop(
       Exercise(

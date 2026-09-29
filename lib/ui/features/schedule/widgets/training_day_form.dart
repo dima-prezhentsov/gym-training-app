@@ -175,6 +175,7 @@ class _TrainingDayFormState extends State<TrainingDayForm> {
                 final exercise = entry.$2;
                 return _ExerciseTile(
                   exercise: exercise,
+                  onEdit: () => _editExercise(index),
                   onDelete: () => setState(() => _exercises.removeAt(index)),
                 );
               }),
@@ -204,6 +205,20 @@ class _TrainingDayFormState extends State<TrainingDayForm> {
     );
     if (exercise == null || !mounted) return;
     setState(() => _exercises.add(exercise));
+  }
+
+  Future<void> _editExercise(int index) async {
+    final exercise = _exercises[index];
+    final updated = await showDialog<Exercise>(
+      context: context,
+      builder: (_) => ExerciseFormDialog(initialExercise: exercise),
+    );
+    if (updated == null || !mounted) return;
+    final currentIndex = _exercises.indexWhere(
+      (item) => item.id == exercise.id,
+    );
+    if (currentIndex == -1) return;
+    setState(() => _exercises[currentIndex] = updated);
   }
 
   Future<void> _submit() async {
@@ -253,9 +268,14 @@ class _TrainingDayFormState extends State<TrainingDayForm> {
 }
 
 class _ExerciseTile extends StatelessWidget {
-  const _ExerciseTile({required this.exercise, required this.onDelete});
+  const _ExerciseTile({
+    required this.exercise,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final Exercise exercise;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
@@ -284,6 +304,11 @@ class _ExerciseTile extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: onEdit,
+            tooltip: 'Переименовать ${exercise.name}',
+            icon: const Icon(Icons.edit_outlined),
           ),
           IconButton(
             onPressed: onDelete,

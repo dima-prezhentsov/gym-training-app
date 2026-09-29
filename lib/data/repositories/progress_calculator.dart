@@ -33,6 +33,10 @@ ProgressOverview calculateProgressOverview({
     today: today,
   );
   final exercisePoints = <String, List<ExerciseProgressPoint>>{};
+  final currentExerciseNames = {
+    for (final day in schedule.days)
+      for (final exercise in day.exercises) exercise.id: exercise.name,
+  };
   final exerciseNames = <String, String>{};
   final muscleSets = <MuscleGroup, int>{};
   final personalRecords = <String, PersonalRecord>{};
@@ -93,7 +97,8 @@ ProgressOverview calculateProgressOverview({
           .map(
             (entry) => ExerciseProgress(
               exerciseId: entry.key,
-              name: exerciseNames[entry.key]!,
+              name:
+                  currentExerciseNames[entry.key] ?? exerciseNames[entry.key]!,
               points: List.unmodifiable(entry.value),
             ),
           )
@@ -107,8 +112,22 @@ ProgressOverview calculateProgressOverview({
           )
           .toList()
         ..sort((left, right) => right.setCount.compareTo(left.setCount));
-  final recordsList = personalRecords.values.toList()
-    ..sort((left, right) => right.achievedAt.compareTo(left.achievedAt));
+  final recordsList =
+      personalRecords.values
+          .map(
+            (record) => PersonalRecord(
+              exerciseId: record.exerciseId,
+              exerciseName:
+                  currentExerciseNames[record.exerciseId] ??
+                  exerciseNames[record.exerciseId]!,
+              weightKg: record.weightKg,
+              repetitions: record.repetitions,
+              estimatedMaxKg: record.estimatedMaxKg,
+              achievedAt: record.achievedAt,
+            ),
+          )
+          .toList()
+        ..sort((left, right) => right.achievedAt.compareTo(left.achievedAt));
 
   return ProgressOverview(
     currentStreakDays: streak.current,
