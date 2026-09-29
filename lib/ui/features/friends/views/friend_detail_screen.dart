@@ -1,15 +1,14 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/theme/app_colors.dart';
 import '../../../../data/repositories/friend_error_message.dart';
 import '../../../../data/repositories/friends_repository.dart';
 import '../../../../domain/models/friend_connection.dart';
 import '../../../../domain/models/progress_overview.dart';
 import '../../../../domain/models/workout_record.dart';
 import '../../../core/utils/app_error_feedback.dart';
+import '../../../core/widgets/exercise_progress_chart_card.dart';
 
 class FriendDetailScreen extends StatefulWidget {
   const FriendDetailScreen({super.key, required this.userId});
@@ -28,6 +27,7 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
   bool _loading = true;
   bool _busy = false;
   String? _selectedExerciseId;
+  ExerciseProgressMetric _selectedMetric = ExerciseProgressMetric.estimatedMax;
 
   @override
   void initState() {
@@ -250,11 +250,17 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
                         ),
                         if (progress.exercises.isNotEmpty) ...[
                           const SizedBox(height: 20),
-                          _ExerciseChart(
-                            progress: progress,
-                            selectedId: _selectedExerciseId,
-                            onSelect: (id) =>
+                          ExerciseProgressChartCard(
+                            exercises: progress.exercises,
+                            exercise: progress.exercises.firstWhere(
+                              (item) => item.exerciseId == _selectedExerciseId,
+                              orElse: () => progress.exercises.first,
+                            ),
+                            metric: _selectedMetric,
+                            onSelectExercise: (id) =>
                                 setState(() => _selectedExerciseId = id),
+                            onSelectMetric: (metric) =>
+                                setState(() => _selectedMetric = metric),
                           ),
                         ],
                       ] else
@@ -274,7 +280,8 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
                         if (history.isEmpty)
                           const Text('Тренировок пока нет')
                         else
-                          for (final record in history)
+                          for (final (index, record) in history.indexed) ...[
+                            if (index > 0) const SizedBox(height: 10),
                             Card(
                               child: ExpansionTile(
                                 title: Text(record.title),
@@ -296,7 +303,8 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
                                     ),
                                 ],
                               ),
-                            )
+                            ),
+                          ]
                       else
                         const Card(
                           child: Padding(
@@ -340,124 +348,4 @@ class _MetricCard extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _ExerciseChart extends StatelessWidget {
-  const _ExerciseChart({
-    required this.progress,
-    required this.selectedId,
-    required this.onSelect,
-  });
-  final ProgressOverview progress;
-  final String? selectedId;
-  final ValueChanged<String> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    final exercise = progress.exercises.firstWhere(
-      (item) => item.exerciseId == selectedId,
-      orElse: () => progress.exercises.first,
-    );
-    final spots = [
-      for (final (index, point) in exercise.points.indexed)
-        FlSpot(index.toDouble(), point.maxWeightKg),
-    ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Рабочий вес', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            DropdownButton<String>(
-              value: exercise.exerciseId,
-              isExpanded: true,
-              items: [
-                for (final item in progress.exercises)
-                  DropdownMenuItem(
-                    value: item.exerciseId,
-                    child: Text(item.name),
-                  ),
-              ],
-              onChanged: (value) {
-                if (value != null) onSelect(value);
-              },
-            ),
-            const SizedBox(height: 18),
-            SizedBox(
-              height: 180,
-              child: LineChart(
-                LineChartData(
-                  minX: 0,
-                  maxX: spots.length <= 1 ? 1 : (spots.length - 1).toDouble(),
-                  gridData: const FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: spots.length <= 5
-                            ? 1
-                            : (spots.length / 4).ceilToDouble(),
-                        getTitlesWidget: (value, meta) {
-                          final index = value.toInt();
-                          if (index < 0 ||
-                              index >= exercise.points.length ||
-                              value != index) {
-                            return const SizedBox.shrink();
-                          }
-                          final date = exercise.points[index].date;
-                          return Text(
-                            '${date.day}.${date.month}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.textSecondary,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 42,
-                        getTitlesWidget: (value, meta) => Text(
-                          '${value.toInt()} кг',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: false,
-                      color: AppColors.lime,
-                      barWidth: 3,
-                      dotData: const FlDotData(show: true),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Дата тренировки → · максимальный рабочий вес, кг',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

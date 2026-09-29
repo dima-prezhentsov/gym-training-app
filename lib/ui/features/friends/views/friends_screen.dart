@@ -212,7 +212,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 else ...[
                   if (incoming.isNotEmpty) ...[
                     const _SectionTitle('Запросы'),
-                    for (final friend in incoming)
+                    for (final (index, friend) in incoming.indexed) ...[
+                      if (index > 0) const SizedBox(height: 10),
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -249,6 +250,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                           ),
                         ),
                       ),
+                    ],
                     const SizedBox(height: 18),
                   ],
                   const _SectionTitle('Мои друзья'),
@@ -257,7 +259,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text('Пока нет друзей. Отправьте приглашение.'),
                     ),
-                  for (final friend in accepted)
+                  for (final (index, friend) in accepted.indexed) ...[
+                    if (index > 0) const SizedBox(height: 10),
                     Card(
                       child: ListTile(
                         leading: const CircleAvatar(
@@ -280,10 +283,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         },
                       ),
                     ),
+                  ],
                   if (outgoing.isNotEmpty) ...[
                     const SizedBox(height: 18),
                     const _SectionTitle('Ожидают ответа'),
-                    for (final friend in outgoing)
+                    for (final (index, friend) in outgoing.indexed) ...[
+                      if (index > 0) const SizedBox(height: 10),
                       Card(
                         child: ListTile(
                           title: Text(friend.displayName),
@@ -301,6 +306,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                           ),
                         ),
                       ),
+                    ],
                   ],
                 ],
               ],

@@ -192,7 +192,15 @@ void main() {
     await tester.tap(find.text('Анна'));
     await tester.pumpAndSettle();
     expect(find.text('Прогресс друга'), findsOneWidget);
-    expect(find.text('Рабочий вес'), findsOneWidget);
+    expect(find.text('Расчётный 1ПМ по тренировкам'), findsOneWidget);
+    expect(find.text('Расчётный 1ПМ, кг'), findsOneWidget);
+    final volumeChip = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'Объём'),
+    );
+    volumeChip.onSelected!(true);
+    await tester.pumpAndSettle();
+    expect(find.text('Объём по тренировкам'), findsOneWidget);
+    expect(find.text('Объём, кг'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('История друга'), 250);
     expect(find.text('История друга'), findsOneWidget);
     expect(tester.takeException(), isNull);

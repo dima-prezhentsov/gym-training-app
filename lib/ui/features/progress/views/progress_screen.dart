@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +9,7 @@ import '../../../../domain/models/progress_overview.dart';
 import '../../../core/utils/app_error_feedback.dart';
 import '../../../core/widgets/async_action_button.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/exercise_progress_chart_card.dart';
 import '../../history/views/history_screen.dart';
 import '../view_models/progress_view_model.dart';
 
@@ -193,7 +193,13 @@ class _ProgressDashboard extends StatelessWidget {
           const SizedBox(height: 28),
           const _SectionTitle(title: 'Динамика упражнения'),
           const SizedBox(height: 12),
-          _ExerciseChartCard(viewModel: viewModel, exercise: exercise),
+          ExerciseProgressChartCard(
+            exercises: overview.exercises,
+            exercise: exercise,
+            metric: viewModel.metric,
+            onSelectExercise: viewModel.selectExercise,
+            onSelectMetric: viewModel.selectMetric,
+          ),
         ],
         if (overview.personalRecords.isNotEmpty) ...[
           const SizedBox(height: 28),
@@ -390,250 +396,6 @@ class _VerticalDivider extends StatelessWidget {
   }
 }
 
-class _ExerciseChartCard extends StatelessWidget {
-  const _ExerciseChartCard({required this.viewModel, required this.exercise});
-
-  final ProgressViewModel viewModel;
-  final ExerciseProgress exercise;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<String>(
-              key: ValueKey('exercise-${viewModel.selectedExerciseId}'),
-              initialValue: viewModel.selectedExerciseId,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Упражнение'),
-              items: viewModel.overview!.exercises
-                  .map(
-                    (item) => DropdownMenuItem(
-                      value: item.exerciseId,
-                      child: Text(item.name, overflow: TextOverflow.ellipsis),
-                    ),
-                  )
-                  .toList(growable: false),
-              onChanged: viewModel.selectExercise,
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: ExerciseProgressMetric.values
-                  .map(
-                    (metric) => ChoiceChip(
-                      label: Text(metric.label),
-                      selected: viewModel.metric == metric,
-                      onSelected: (_) => viewModel.selectMetric(metric),
-                      showCheckmark: false,
-                    ),
-                  )
-                  .toList(growable: false),
-            ),
-            if (viewModel.metric == ExerciseProgressMetric.estimatedMax) ...[
-              const SizedBox(height: 10),
-              Text(
-                'Примерный максимальный вес на одно повторение, рассчитанный по лучшему подходу.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: 20),
-            _ProgressChart(
-              key: ValueKey(
-                'progress-chart-${exercise.exerciseId}-${viewModel.metric.name}',
-              ),
-              points: exercise.points,
-              metric: viewModel.metric,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProgressChart extends StatelessWidget {
-  const _ProgressChart({super.key, required this.points, required this.metric});
-
-  final List<ExerciseProgressPoint> points;
-  final ExerciseProgressMetric metric;
-
-  @override
-  Widget build(BuildContext context) {
-    final values = points.map((point) => point.valueFor(metric)).toList();
-    final spots = List.generate(
-      values.length,
-      (index) => FlSpot(index.toDouble(), values[index]),
-    );
-    final latest = values.last;
-    final first = values.first;
-    final delta = first == 0 ? 0.0 : (latest - first) / first * 100;
-    final minValue = values.reduce(math.min);
-    final maxValue = values.reduce(math.max);
-    final padding = math.max(
-      math.max((maxValue - minValue) * 0.12, maxValue.abs() * 0.08),
-      1,
-    );
-    final minY = math.max(0, minValue - padding).toDouble();
-    final maxY = maxValue + padding;
-    final yInterval = (maxY - minY) / 3;
-    final labelIndexes = {0, (points.length - 1) ~/ 2, points.length - 1};
-    final axisStyle = Theme.of(
-      context,
-    ).textTheme.labelSmall?.copyWith(color: AppColors.textSecondary);
-    return Semantics(
-      label:
-          '${metric.label}: последнее значение ${_formatMetric(latest, metric)}, изменение ${delta.toStringAsFixed(0)} процентов',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Text(
-                  _formatMetric(latest, metric),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ),
-              Text(
-                '${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(0)}%',
-                style: TextStyle(
-                  color: delta >= 0 ? AppColors.lime : AppColors.error,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${metric.label} по тренировкам',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 230,
-            child: LineChart(
-              LineChartData(
-                minX: 0,
-                maxX: math.max(1, points.length - 1).toDouble(),
-                minY: minY,
-                maxY: maxY,
-                gridData: FlGridData(
-                  drawVerticalLine: false,
-                  horizontalInterval: yInterval,
-                  getDrawingHorizontalLine: (_) =>
-                      const FlLine(color: AppColors.outline, strokeWidth: 1),
-                ),
-                borderData: FlBorderData(show: false),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  leftTitles: AxisTitles(
-                    axisNameWidget: Text(
-                      _metricAxisLabel(metric),
-                      style: axisStyle,
-                    ),
-                    axisNameSize: 22,
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 48,
-                      interval: yInterval,
-                      getTitlesWidget: (value, meta) => SideTitleWidget(
-                        meta: meta,
-                        space: 8,
-                        child: Text(_formatAxisValue(value), style: axisStyle),
-                      ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    axisNameWidget: Text('Дата тренировки', style: axisStyle),
-                    axisNameSize: 24,
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.round();
-                        if (index < 0 ||
-                            index >= points.length ||
-                            !labelIndexes.contains(index)) {
-                          return const SizedBox.shrink();
-                        }
-                        return SideTitleWidget(
-                          meta: meta,
-                          space: 8,
-                          child: Text(
-                            _shortDate(points[index].date),
-                            style: axisStyle,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.surfaceRaised,
-                    tooltipBorder: const BorderSide(color: AppColors.outline),
-                    fitInsideHorizontally: true,
-                    fitInsideVertically: true,
-                    getTooltipItems: (touchedSpots) => touchedSpots
-                        .map((spot) {
-                          final index = spot.x.round();
-                          return LineTooltipItem(
-                            '${_shortDate(points[index].date)}\n${_formatMetric(spot.y, metric)}',
-                            const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          );
-                        })
-                        .toList(growable: false),
-                  ),
-                ),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    color: AppColors.lime,
-                    barWidth: 3,
-                    isCurved: points.length > 2,
-                    preventCurveOverShooting: true,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          AppColors.lime.withValues(alpha: 0.22),
-                          AppColors.lime.withValues(alpha: 0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOutCubic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _PersonalRecordsCard extends StatelessWidget {
   const _PersonalRecordsCard({required this.records});
 
@@ -804,25 +566,6 @@ class _ProgressError extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatMetric(double value, ExerciseProgressMetric metric) {
-  final suffix = metric == ExerciseProgressMetric.volume ? 'кг объёма' : 'кг';
-  return '${_formatNumber(value)} $suffix';
-}
-
-String _metricAxisLabel(ExerciseProgressMetric metric) => switch (metric) {
-  ExerciseProgressMetric.estimatedMax => 'Расчётный 1ПМ, кг',
-  ExerciseProgressMetric.maxWeight => 'Макс. вес, кг',
-  ExerciseProgressMetric.volume => 'Объём, кг',
-};
-
-String _formatAxisValue(double value) {
-  if (value.abs() >= 1000) {
-    final thousands = value / 1000;
-    return '${thousands.toStringAsFixed(thousands >= 10 ? 0 : 1)} тыс.';
-  }
-  return _formatNumber(value);
 }
 
 String _formatNumber(double value) => value == value.roundToDouble()
