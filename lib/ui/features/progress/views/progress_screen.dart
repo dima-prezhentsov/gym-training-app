@@ -433,6 +433,13 @@ class _ExerciseChartCard extends StatelessWidget {
                   )
                   .toList(growable: false),
             ),
+            if (viewModel.metric == ExerciseProgressMetric.estimatedMax) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Примерный максимальный вес на одно повторение, рассчитанный по лучшему подходу.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
             const SizedBox(height: 20),
             _ProgressChart(
               key: ValueKey(

@@ -83,6 +83,12 @@ void main() {
     await tester.tap(find.byTooltip('Прогресс'));
     await tester.pumpAndSettle();
     expect(find.text('Расчётный 1ПМ'), findsOneWidget);
+    expect(
+      find.text(
+        'Примерный максимальный вес на одно повторение, рассчитанный по лучшему подходу.',
+      ),
+      findsOneWidget,
+    );
     expect(find.byKey(const ValueKey('progress-streak-card')), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('progress-history-tab')));
