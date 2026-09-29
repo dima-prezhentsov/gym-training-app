@@ -37,7 +37,7 @@ class ScheduleScreen extends StatelessWidget {
               IconButton.filled(
                 onPressed: schedule == null ? null : () => _openEditor(context),
                 tooltip: 'Добавить тренировочный день',
-                icon: const Icon(Icons.add_rounded),
+                icon: Icon(Icons.add_rounded, color: Theme.of(context).colorScheme.onPrimary,),
               ),
             ],
           ),
