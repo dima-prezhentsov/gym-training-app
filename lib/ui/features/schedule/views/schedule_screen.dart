@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +8,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../domain/models/training_day.dart';
 import '../../../core/utils/app_error_feedback.dart';
 import '../../../core/widgets/async_action_button.dart';
+import '../../home/view_models/home_view_model.dart';
 import '../view_models/schedule_view_model.dart';
 import '../widgets/training_day_form.dart';
 
@@ -86,7 +89,7 @@ class ScheduleScreen extends StatelessWidget {
 
   Future<void> _openEditor(BuildContext context, {TrainingDay? day}) async {
     final viewModel = context.read<ScheduleViewModel>();
-    await showModalBottomSheet<void>(
+    final changed = await showModalBottomSheet<bool>(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
@@ -97,7 +100,13 @@ class ScheduleScreen extends StatelessWidget {
         onDelete: day == null ? null : () => viewModel.deleteDay(day.id),
       ),
     );
-    if (!context.mounted || viewModel.errorMessage == null) return;
+    if (!context.mounted) return;
+    if (viewModel.errorMessage == null) {
+      if (changed == true) {
+        unawaited(context.read<HomeViewModel>().loadOverview());
+      }
+      return;
+    }
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(viewModel.errorMessage!)));

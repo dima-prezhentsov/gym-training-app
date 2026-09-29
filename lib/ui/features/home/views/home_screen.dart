@@ -68,7 +68,7 @@ class _HomeContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'До тренировки — 2 дня',
+                          _trainingCountdown(overview.daysUntilNextTraining),
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ],
@@ -126,14 +126,95 @@ class _DayTile extends StatelessWidget {
   final WeekDaySummary day;
 
   @override
+  Widget build(BuildContext context) => _AnimatedDayTile(day: day);
+}
+
+class _AnimatedDayTile extends StatefulWidget {
+  const _AnimatedDayTile({required this.day});
+
+  final WeekDaySummary day;
+
+  @override
+  State<_AnimatedDayTile> createState() => _AnimatedDayTileState();
+}
+
+class _AnimatedDayTileState extends State<_AnimatedDayTile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  bool get _isTodayTraining => widget.day.isToday && widget.day.hasTraining;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _pulse = Tween<double>(
+      begin: 1,
+      end: 1.055,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncAnimation();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedDayTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncAnimation();
+  }
+
+  void _syncAnimation() {
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    if (_isTodayTraining && !disableAnimations) {
+      if (!_controller.isAnimating) _controller.repeat(reverse: true);
+    } else {
+      _controller
+        ..stop()
+        ..value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final highlighted = day.state != TrainingDayState.rest;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+    final day = widget.day;
+    final highlighted = day.hasTraining;
+    final today = day.isToday;
+    final tile = AnimatedContainer(
+      key: today ? const ValueKey('today-day-tile') : null,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
       height: 68,
       decoration: BoxDecoration(
         color: highlighted ? AppColors.lime : AppColors.surfaceRaised,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
+        border: today
+            ? Border.all(
+                color: highlighted ? AppColors.textPrimary : AppColors.lime,
+                width: 2,
+              )
+            : null,
+        boxShadow: _isTodayTraining
+            ? [
+                BoxShadow(
+                  color: AppColors.lime.withValues(alpha: 0.28),
+                  blurRadius: 14,
+                  spreadRadius: 1,
+                ),
+              ]
+            : null,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -143,8 +224,10 @@ class _DayTile extends StatelessWidget {
             style: TextStyle(
               color: highlighted
                   ? AppColors.background
+                  : today
+                  ? AppColors.lime
                   : AppColors.textSecondary,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -154,12 +237,32 @@ class _DayTile extends StatelessWidget {
             style: TextStyle(
               color: highlighted
                   ? AppColors.background
+                  : today
+                  ? AppColors.textPrimary
                   : AppColors.textSecondary,
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
         ],
+      ),
+    );
+
+    return Semantics(
+      label: [
+        day.label,
+        day.dayNumber,
+        if (today) 'сегодня',
+        if (day.hasTraining) 'тренировочный день',
+      ].join(', '),
+      child: AnimatedBuilder(
+        key: _isTodayTraining ? const ValueKey('today-training-pulse') : null,
+        animation: _controller,
+        child: tile,
+        builder: (context, child) => Transform.scale(
+          scale: _isTodayTraining ? _pulse.value : 1,
+          child: child,
+        ),
       ),
     );
   }
@@ -171,16 +274,47 @@ class _NextTrainingCard extends StatelessWidget {
     required this.activeWorkout,
   });
 
-  final TrainingDaySummary training;
+  final TrainingDaySummary? training;
   final ActiveWorkout? activeWorkout;
 
   @override
   Widget build(BuildContext context) {
     final active = activeWorkout;
-    final title = active?.title ?? training.title;
-    final exerciseCount = active?.exercises.length ?? training.exerciseCount;
+    final training = this.training;
+    if (active == null && training == null) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Добавьте тренировочный день',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'После этого здесь появится ближайшая тренировка.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => context.go('/schedule'),
+                  child: const Text('Настроить расписание'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final title = active?.title ?? training!.title;
+    final exerciseCount = active?.exercises.length ?? training!.exerciseCount;
     final muscleGroups = active == null
-        ? training.muscleGroups
+        ? training!.muscleGroups
         : active.exercises
               .map((exercise) => exercise.muscleGroup.label)
               .toSet()
@@ -210,7 +344,7 @@ class _NextTrainingCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   active == null
-                      ? '${training.estimatedMinutes} мин'
+                      ? '${training!.estimatedMinutes} мин'
                       : 'В процессе',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -228,7 +362,7 @@ class _NextTrainingCard extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () => context.push(
-                  '/workout/${active?.trainingDayId ?? training.id}',
+                  '/workout/${active?.trainingDayId ?? training!.id}',
                 ),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: Text(
@@ -243,6 +377,16 @@ class _NextTrainingCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _trainingCountdown(int? daysUntil) {
+  return switch (daysUntil) {
+    null => 'Расписание не настроено',
+    0 => 'Тренировка сегодня',
+    1 => 'До тренировки — 1 день',
+    >= 2 && <= 4 => 'До тренировки — $daysUntil дня',
+    _ => 'До тренировки — $daysUntil дней',
+  };
 }
 
 class _WeeklyStats extends StatelessWidget {

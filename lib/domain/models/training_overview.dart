@@ -4,12 +4,18 @@ class WeekDaySummary {
   const WeekDaySummary({
     required this.label,
     required this.dayNumber,
+    required this.date,
+    required this.isToday,
     required this.state,
   });
 
   final String label;
   final int dayNumber;
+  final DateTime date;
+  final bool isToday;
   final TrainingDayState state;
+
+  bool get hasTraining => state != TrainingDayState.rest;
 }
 
 class TrainingDaySummary {
@@ -33,6 +39,7 @@ class TrainingOverview {
     required this.scheduleName,
     required this.days,
     required this.nextTraining,
+    required this.daysUntilNextTraining,
     required this.completedThisWeek,
     required this.totalMinutesThisWeek,
     required this.totalSetsThisWeek,
@@ -40,7 +47,8 @@ class TrainingOverview {
 
   final String scheduleName;
   final List<WeekDaySummary> days;
-  final TrainingDaySummary nextTraining;
+  final TrainingDaySummary? nextTraining;
+  final int? daysUntilNextTraining;
   final int completedThisWeek;
   final int totalMinutesThisWeek;
   final int totalSetsThisWeek;

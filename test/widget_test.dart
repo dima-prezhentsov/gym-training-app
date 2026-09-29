@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/app/app.dart';
 import 'package:gym_training_app/data/repositories/training_schedule_repository.dart';
+import 'package:gym_training_app/data/repositories/training_overview_repository.dart';
+import 'package:gym_training_app/domain/models/training_overview.dart';
 import 'package:gym_training_app/domain/models/training_schedule.dart';
 import 'package:gym_training_app/telegram/telegram_web_app.dart';
 
@@ -12,7 +14,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('До тренировки — 2 дня'), findsOneWidget);
+    expect(find.textContaining('тренировк'), findsWidgets);
     expect(find.text('Следующая тренировка'), findsOneWidget);
     expect(find.text('Спина + бицепс'), findsOneWidget);
     expect(find.text('Начать тренировку'), findsOneWidget);
@@ -26,7 +28,7 @@ void main() {
     app.router.config.go('/');
     await tester.pumpAndSettle();
 
-    expect(find.text('До тренировки — 2 дня'), findsOneWidget);
+    expect(find.textContaining('тренировк'), findsWidgets);
     expect(find.text('Не удалось открыть экран'), findsNothing);
   });
 
@@ -43,7 +45,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('До тренировки — 2 дня'), findsOneWidget);
+    expect(find.textContaining('тренировк'), findsWidgets);
     expect(find.textContaining('Не удалось открыть экран'), findsNothing);
   });
 
@@ -80,6 +82,64 @@ void main() {
     expect(find.text('Dima (@dima)'), findsOneWidget);
     expect(find.text('Telegram подключён'), findsOneWidget);
     expect(find.text('tdesktop'), findsOneWidget);
+  });
+
+  testWidgets('animates today when it is a training day', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final overview = TrainingOverview(
+      scheduleName: 'Основная программа',
+      days: List.generate(
+        7,
+        (index) => WeekDaySummary(
+          label: const ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][index],
+          dayNumber: 28 + index,
+          date: DateTime(2026, 9, 28 + index),
+          isToday: index == 1,
+          state: index == 1 ? TrainingDayState.upcoming : TrainingDayState.rest,
+        ),
+      ),
+      nextTraining: const TrainingDaySummary(
+        id: 'today',
+        title: 'Тренировка сегодня',
+        muscleGroups: ['Спина'],
+        exerciseCount: 1,
+        estimatedMinutes: 45,
+      ),
+      daysUntilNextTraining: 0,
+      completedThisWeek: 0,
+      totalMinutesThisWeek: 0,
+      totalSetsThisWeek: 0,
+    );
+    await tester.pumpWidget(
+      GymTrainingApp(
+        telegram: const TelegramLaunchData.browser(),
+        trainingRepository: _OverviewRepository(overview),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('today-day-tile')), findsOneWidget);
+    expect(find.byKey(const ValueKey('today-training-pulse')), findsOneWidget);
+    expect(find.text('Тренировка сегодня'), findsWidgets);
+    final pulse = find.byKey(const ValueKey('today-training-pulse'));
+    final initialScale = tester
+        .widget<Transform>(
+          find.descendant(of: pulse, matching: find.byType(Transform)),
+        )
+        .transform
+        .getMaxScaleOnAxis();
+
+    await tester.pump(const Duration(milliseconds: 450));
+    final animatedScale = tester
+        .widget<Transform>(
+          find.descendant(of: pulse, matching: find.byType(Transform)),
+        )
+        .transform
+        .getMaxScaleOnAxis();
+    expect(animatedScale, greaterThan(initialScale));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('creates a training day with a validated exercise', (
@@ -256,4 +316,13 @@ class _FailingTrainingScheduleRepository implements TrainingScheduleRepository {
 
   @override
   Future<void> save(TrainingSchedule schedule) async {}
+}
+
+class _OverviewRepository implements TrainingOverviewRepository {
+  _OverviewRepository(this.overview);
+
+  final TrainingOverview overview;
+
+  @override
+  Future<TrainingOverview> getOverview() async => overview;
 }

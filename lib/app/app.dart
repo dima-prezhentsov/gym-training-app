@@ -24,7 +24,7 @@ class GymTrainingApp extends StatelessWidget {
     WorkoutRepository? workoutRepository,
     BackendSession? backendSession,
   }) : trainingRepository =
-           trainingRepository ?? const DemoTrainingOverviewRepository(),
+           trainingRepository ?? DemoTrainingOverviewRepository(),
        scheduleRepository =
            scheduleRepository ?? InMemoryTrainingScheduleRepository(),
        workoutRepository = workoutRepository ?? InMemoryWorkoutRepository(),

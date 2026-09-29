@@ -222,7 +222,7 @@ class _TrainingDayFormState extends State<TrainingDayForm> {
     );
     await widget.onSave(day);
 
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop(true);
   }
 
   Future<void> _confirmDelete() async {
@@ -248,7 +248,7 @@ class _TrainingDayFormState extends State<TrainingDayForm> {
 
     setState(() => _isSubmitting = true);
     await widget.onDelete!();
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop(true);
   }
 }
 
