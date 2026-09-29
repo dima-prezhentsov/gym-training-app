@@ -9,11 +9,17 @@ import '../../../core/widgets/async_action_button.dart';
 import '../../workout/view_models/workout_view_model.dart';
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key});
+  const HistoryScreen({super.key, this.showHeader = true});
+
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<WorkoutViewModel>();
+
+    if (!showHeader) {
+      return _HistoryContent(viewModel: viewModel);
+    }
 
     return SafeArea(
       bottom: false,

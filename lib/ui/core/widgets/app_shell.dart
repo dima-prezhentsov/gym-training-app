@@ -59,8 +59,8 @@ class AppShell extends StatelessWidget {
                     NavigationDestination(
                       icon: Icon(Icons.bar_chart_outlined),
                       selectedIcon: Icon(Icons.bar_chart_rounded),
-                      label: 'История',
-                      tooltip: 'История',
+                      label: 'Прогресс',
+                      tooltip: 'Прогресс',
                     ),
                     NavigationDestination(
                       icon: Icon(Icons.person_outline_rounded),

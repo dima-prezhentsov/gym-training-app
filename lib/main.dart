@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app/app.dart';
+import 'data/repositories/serverpod_progress_repository.dart';
 import 'data/repositories/serverpod_training_schedule_repository.dart';
 import 'data/repositories/serverpod_training_overview_repository.dart';
 import 'data/repositories/serverpod_workout_repository.dart';
@@ -26,6 +27,13 @@ void main() {
           workoutRepository: workoutRepository,
         )
       : null;
+  final progressRepository =
+      scheduleRepository != null && workoutRepository != null
+      ? ServerpodProgressRepository(
+          scheduleRepository: scheduleRepository,
+          workoutRepository: workoutRepository,
+        )
+      : null;
   runApp(
     GymTrainingApp(
       telegram: telegram,
@@ -33,6 +41,7 @@ void main() {
       trainingRepository: trainingRepository,
       scheduleRepository: scheduleRepository,
       workoutRepository: workoutRepository,
+      progressRepository: progressRepository,
     ),
   );
 }

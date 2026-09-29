@@ -11,6 +11,7 @@ import '../../../../domain/models/training_day.dart';
 import '../../../core/utils/app_error_feedback.dart';
 import '../../../core/widgets/async_action_button.dart';
 import '../../home/view_models/home_view_model.dart';
+import '../../progress/view_models/progress_view_model.dart';
 import '../../schedule/view_models/schedule_view_model.dart';
 import '../view_models/workout_view_model.dart';
 
@@ -233,7 +234,8 @@ class _WorkoutContent extends StatelessWidget {
       return;
     }
     unawaited(context.read<HomeViewModel>().loadOverview());
-    context.go('/history');
+    unawaited(context.read<ProgressViewModel>().load());
+    context.go('/history?section=history');
   }
 }
 

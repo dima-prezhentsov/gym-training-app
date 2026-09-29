@@ -9,6 +9,7 @@ import '../../../../domain/models/training_day.dart';
 import '../../../core/utils/app_error_feedback.dart';
 import '../../../core/widgets/async_action_button.dart';
 import '../../home/view_models/home_view_model.dart';
+import '../../progress/view_models/progress_view_model.dart';
 import '../view_models/schedule_view_model.dart';
 import '../widgets/training_day_form.dart';
 
@@ -37,7 +38,10 @@ class ScheduleScreen extends StatelessWidget {
               IconButton.filled(
                 onPressed: schedule == null ? null : () => _openEditor(context),
                 tooltip: 'Добавить тренировочный день',
-                icon: Icon(Icons.add_rounded, color: Theme.of(context).colorScheme.onPrimary,),
+                icon: Icon(
+                  Icons.add_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
             ],
           ),
@@ -104,6 +108,7 @@ class ScheduleScreen extends StatelessWidget {
     if (viewModel.errorMessage == null) {
       if (changed == true) {
         unawaited(context.read<HomeViewModel>().loadOverview());
+        unawaited(context.read<ProgressViewModel>().load());
       }
       return;
     }

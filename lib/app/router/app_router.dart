@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../ui/core/widgets/app_shell.dart';
-import '../../ui/features/history/views/history_screen.dart';
 import '../../ui/features/home/views/home_screen.dart';
 import '../../ui/features/profile/views/profile_screen.dart';
+import '../../ui/features/progress/views/progress_screen.dart';
 import '../../ui/features/schedule/views/schedule_screen.dart';
 import '../../ui/features/workout/views/active_workout_screen.dart';
 
@@ -49,7 +49,10 @@ AppRouter createAppRouter() {
               routes: [
                 GoRoute(
                   path: '/history',
-                  builder: (context, state) => const HistoryScreen(),
+                  builder: (context, state) => ProgressScreen(
+                    showHistory:
+                        state.uri.queryParameters['section'] == 'history',
+                  ),
                 ),
               ],
             ),

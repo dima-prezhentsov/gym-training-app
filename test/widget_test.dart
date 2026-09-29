@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/app/app.dart';
+import 'package:gym_training_app/data/repositories/in_memory_workout_repository.dart';
+import 'package:gym_training_app/data/repositories/progress_repository.dart';
 import 'package:gym_training_app/data/repositories/training_schedule_repository.dart';
 import 'package:gym_training_app/data/repositories/training_overview_repository.dart';
+import 'package:gym_training_app/domain/models/progress_overview.dart';
 import 'package:gym_training_app/domain/models/training_overview.dart';
 import 'package:gym_training_app/domain/models/training_schedule.dart';
 import 'package:gym_training_app/telegram/telegram_web_app.dart';
@@ -60,9 +63,69 @@ void main() {
     expect(find.text('Расписание'), findsWidgets);
     expect(find.text('Грудь + трицепс'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('История'));
+    await tester.tap(find.byTooltip('Прогресс'));
     await tester.pumpAndSettle();
-    expect(find.text('История пока пуста'), findsOneWidget);
+    expect(find.text('Прогресс'), findsWidgets);
+    expect(find.byKey(const ValueKey('progress-streak-card')), findsOneWidget);
+    expect(find.text('Динамика упражнения'), findsOneWidget);
+  });
+
+  testWidgets('switches between progress overview and workout history', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      GymTrainingApp(telegram: const TelegramLaunchData.browser()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Прогресс'));
+    await tester.pumpAndSettle();
+    expect(find.text('Расчётный 1ПМ'), findsOneWidget);
+    expect(find.byKey(const ValueKey('progress-streak-card')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('progress-history-tab')));
+    await tester.pumpAndSettle();
+    expect(find.byType(Card), findsWidgets);
+    expect(find.textContaining('подход'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows an empty progress state without workout history', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      GymTrainingApp(
+        telegram: const TelegramLaunchData.browser(),
+        workoutRepository: InMemoryWorkoutRepository(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Прогресс'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Недостаточно данных'), findsOneWidget);
+    expect(find.text('Открыть расписание'), findsOneWidget);
+  });
+
+  testWidgets('shows loading feedback while retrying progress', (tester) async {
+    await tester.pumpWidget(
+      GymTrainingApp(
+        telegram: const TelegramLaunchData.browser(),
+        progressRepository: _FailingProgressRepository(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Прогресс'));
+    await tester.pumpAndSettle();
+    expect(find.text('Не удалось загрузить статистику'), findsOneWidget);
+
+    await tester.tap(find.text('Повторить'));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('async-action-progress')), findsOneWidget);
   });
 
   testWidgets('shows Telegram identity in profile', (tester) async {
@@ -209,7 +272,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      GymTrainingApp(telegram: const TelegramLaunchData.browser()),
+      GymTrainingApp(
+        telegram: const TelegramLaunchData.browser(),
+        workoutRepository: InMemoryWorkoutRepository(),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -325,4 +391,10 @@ class _OverviewRepository implements TrainingOverviewRepository {
 
   @override
   Future<TrainingOverview> getOverview() async => overview;
+}
+
+class _FailingProgressRepository implements ProgressRepository {
+  @override
+  Future<ProgressOverview> load(ProgressPeriod period) =>
+      Future.error(StateError('load failed'));
 }
