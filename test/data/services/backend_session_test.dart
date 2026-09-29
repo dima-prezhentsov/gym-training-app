@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:backend_client/backend_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/data/services/backend_session.dart';
 import 'package:gym_training_app/telegram/telegram_launch_data.dart';
@@ -30,6 +31,56 @@ void main() {
     expect(session.status, BackendSessionStatus.authenticated);
     expect(session.error, isNull);
   });
+
+  test('recognizes temporary backend failures without hiding other errors', () {
+    expect(
+      isTemporaryBackendFailure(const ServerpodClientException('busy', 503)),
+      isTrue,
+    );
+    expect(
+      isTemporaryBackendFailure(const ServerpodClientException('gateway', 502)),
+      isTrue,
+    );
+    expect(
+      isTemporaryBackendFailure(const ServerpodClientException('offline', -1)),
+      isTrue,
+    );
+    expect(isTemporaryBackendFailure(TimeoutException('timeout')), isTrue);
+    expect(
+      isTemporaryBackendFailure(
+        const ServerpodClientException('unauthorized', 401),
+      ),
+      isFalse,
+    );
+    expect(
+      isTemporaryBackendFailure(const ServerpodClientException('bug', 500)),
+      isFalse,
+    );
+  });
+
+  test(
+    'retry probes an authenticated backend before dismissing outage',
+    () async {
+      var probes = 0;
+      final session = BackendSession.test(
+        (_) async => true,
+        availabilityProbe: () async {
+          probes++;
+          if (probes == 1) {
+            throw const ServerpodClientException('busy', 503);
+          }
+        },
+      );
+      await session.initialize(telegram);
+      session.reportRequestFailure(const ServerpodClientException('busy', 503));
+
+      expect(await session.retryUnavailable(telegram), isFalse);
+      expect(session.isServerUnavailable, isTrue);
+      expect(await session.retryUnavailable(telegram), isTrue);
+      expect(session.isServerUnavailable, isFalse);
+      expect(probes, 2);
+    },
+  );
 
   test('does not start another authentication while one is running', () async {
     var attempts = 0;

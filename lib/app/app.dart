@@ -14,6 +14,7 @@ import '../data/repositories/training_overview_repository.dart';
 import '../data/repositories/workout_repository.dart';
 import '../data/services/backend_session.dart';
 import '../telegram/telegram_web_app.dart';
+import '../ui/core/widgets/backend_availability_gate.dart';
 import '../ui/features/home/view_models/home_view_model.dart';
 import '../ui/features/progress/view_models/progress_view_model.dart';
 import '../ui/features/schedule/view_models/schedule_view_model.dart';
@@ -110,6 +111,8 @@ class GymTrainingApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
         routerConfig: router.config,
+        builder: (context, child) =>
+            BackendAvailabilityGate(child: child ?? const SizedBox.shrink()),
       ),
     );
   }
