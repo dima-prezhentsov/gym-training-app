@@ -1,3 +1,4 @@
+import 'package:backend_client/backend_client.dart' as api;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/data/repositories/in_memory_progress_repository.dart';
 import 'package:gym_training_app/data/repositories/progress_calculator.dart';
@@ -180,7 +181,7 @@ void main() {
     );
   });
 
-  test('server and in-memory repositories use the same calculation', () async {
+  test('in-memory repository calculates demo data locally', () async {
     final scheduleRepository = _ScheduleRepository(schedule);
     final workoutRepository = _WorkoutRepository([
       _workout(DateTime(2026, 10, 5)),
@@ -190,21 +191,41 @@ void main() {
       workoutRepository: workoutRepository,
       now: () => DateTime(2026, 10, 9),
     );
-    final server = ServerpodProgressRepository(
-      scheduleRepository: scheduleRepository,
-      workoutRepository: workoutRepository,
-      now: () => DateTime(2026, 10, 9),
-    );
-
     final localResult = await inMemory.load(ProgressPeriod.allTime);
-    final serverResult = await server.load(ProgressPeriod.allTime);
+    expect(localResult.workoutCount, 1);
+    expect(localResult.exercises.single.exerciseId, 'bench');
+  });
 
-    expect(serverResult.workoutCount, localResult.workoutCount);
-    expect(serverResult.currentStreakDays, localResult.currentStreakDays);
-    expect(
-      serverResult.exercises.single.points.single.estimatedMaxKg,
-      localResult.exercises.single.points.single.estimatedMaxKg,
-    );
+  test('maps server aggregate without requesting raw history', () {
+    final mapped = progressOverviewFromDto(api.ProgressOverviewDto(
+      currentStreakDays: 3,
+      bestStreakDays: 5,
+      workoutCount: 1,
+      totalMinutes: 60,
+      totalSets: 2,
+      exercises: [api.ExerciseProgressDto(
+        exerciseId: 'bench',
+        name: 'Жим штанги',
+        points: [api.ExerciseProgressPointDto(
+          date: DateTime.utc(2026, 10, 5),
+          estimatedMaxKg: 80,
+          maxWeightKg: 60,
+          volumeKg: 1200,
+        )],
+      )],
+      muscleGroups: [api.MuscleGroupProgressDto(group: 'chest', setCount: 2)],
+      personalRecords: [api.PersonalRecordDto(
+        exerciseId: 'bench',
+        exerciseName: 'Жим штанги',
+        weightKg: 60,
+        repetitions: 10,
+        estimatedMaxKg: 80,
+        achievedAt: DateTime.utc(2026, 10, 5),
+      )],
+    ));
+    expect(mapped.currentStreakDays, 3);
+    expect(mapped.exercises.single.name, 'Жим штанги');
+    expect(mapped.muscleGroups.single.group, MuscleGroup.chest);
   });
 }
 

@@ -16,15 +16,16 @@ import '../auth/jwt_refresh_endpoint.dart' as _i2;
 import '../auth/telegram_auth_endpoint.dart' as _i3;
 import '../greetings/greeting_endpoint.dart' as _i4;
 import '../history/workout_history_endpoint.dart' as _i5;
-import '../schedule/training_schedule_endpoint.dart' as _i6;
+import '../progress/progress_endpoint.dart' as _i6;
+import '../schedule/training_schedule_endpoint.dart' as _i7;
 import 'package:backend_server/src/generated/history/workout_record_dto.dart'
-    as _i7;
-import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
     as _i8;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
     as _i9;
-import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i10;
+import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+    as _i11;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -54,7 +55,13 @@ class Endpoints extends _i1.EndpointDispatch {
           'workoutHistory',
           null,
         ),
-      'trainingSchedule': _i6.TrainingScheduleEndpoint()
+      'progress': _i6.ProgressEndpoint()
+        ..initialize(
+          server,
+          'progress',
+          null,
+        ),
+      'trainingSchedule': _i7.TrainingScheduleEndpoint()
         ..initialize(
           server,
           'trainingSchedule',
@@ -155,7 +162,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'record': _i1.ParameterDescription(
               name: 'record',
-              type: _i1.getType<_i7.WorkoutRecordDto>(),
+              type: _i1.getType<_i8.WorkoutRecordDto>(),
               nullable: false,
             ),
           },
@@ -172,6 +179,36 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['progress'] = _i1.EndpointConnector(
+      name: 'progress',
+      endpoint: endpoints['progress']!,
+      methodConnectors: {
+        'get': _i1.MethodConnector(
+          name: 'get',
+          params: {
+            'period': _i1.ParameterDescription(
+              name: 'period',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'utcOffsetMinutes': _i1.ParameterDescription(
+              name: 'utcOffsetMinutes',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['progress'] as _i6.ProgressEndpoint).get(
+                session,
+                period: params['period'],
+                utcOffsetMinutes: params['utcOffsetMinutes'],
+              ),
+        ),
+      },
+    );
     connectors['trainingSchedule'] = _i1.EndpointConnector(
       name: 'trainingSchedule',
       endpoint: endpoints['trainingSchedule']!,
@@ -185,7 +222,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['trainingSchedule']
-                          as _i6.TrainingScheduleEndpoint)
+                          as _i7.TrainingScheduleEndpoint)
                       .get(session),
         ),
         'save': _i1.MethodConnector(
@@ -193,7 +230,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'schedule': _i1.ParameterDescription(
               name: 'schedule',
-              type: _i1.getType<_i8.TrainingScheduleDto>(),
+              type: _i1.getType<_i9.TrainingScheduleDto>(),
               nullable: false,
             ),
           },
@@ -203,7 +240,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['trainingSchedule']
-                          as _i6.TrainingScheduleEndpoint)
+                          as _i7.TrainingScheduleEndpoint)
                       .save(
                         session,
                         params['schedule'],
@@ -218,14 +255,14 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['trainingSchedule']
-                          as _i6.TrainingScheduleEndpoint)
+                          as _i7.TrainingScheduleEndpoint)
                       .delete(session),
         ),
       },
     );
-    modules['serverpod_auth_core'] = _i9.Endpoints()
+    modules['serverpod_auth_core'] = _i10.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_idp'] = _i10.Endpoints()
+    modules['serverpod_auth_idp'] = _i11.Endpoints()
       ..initializeEndpoints(server);
   }
 }

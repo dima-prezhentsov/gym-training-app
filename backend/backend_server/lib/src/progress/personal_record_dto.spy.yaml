@@ -1,0 +1,8 @@
+class: PersonalRecordDto
+fields:
+  exerciseId: String
+  exerciseName: String
+  weightKg: double
+  repetitions: int
+  estimatedMaxKg: double
+  achievedAt: DateTime

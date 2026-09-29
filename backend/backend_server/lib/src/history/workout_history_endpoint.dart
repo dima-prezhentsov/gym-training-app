@@ -2,24 +2,17 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 
 import '../generated/protocol.dart';
+import 'workout_history_reader.dart';
 
 class WorkoutHistoryEndpoint extends Endpoint {
   @override
   bool get requireLogin => true;
 
   Future<List<WorkoutRecordDto>> list(Session session) async {
-    final authUserId = session.authenticated!.authUserId;
-    final records = await WorkoutRecordEntity.db.find(
+    return WorkoutHistoryReader.listForUser(
       session,
-      where: (table) => table.authUserId.equals(authUserId),
-      orderBy: (table) => table.completedAt,
-      orderDescending: true,
+      session.authenticated!.authUserId,
     );
-    final result = <WorkoutRecordDto>[];
-    for (final record in records) {
-      result.add(await _loadRecord(session, record));
-    }
-    return result;
   }
 
   Future<WorkoutRecordDto> save(
@@ -96,54 +89,12 @@ class WorkoutHistoryEndpoint extends Endpoint {
             );
           }
         }
-        return _loadRecord(session, entity, transaction: transaction);
+        return WorkoutHistoryReader.loadRecord(
+          session,
+          entity,
+          transaction: transaction,
+        );
       },
-    );
-  }
-
-  Future<WorkoutRecordDto> _loadRecord(
-    Session session,
-    WorkoutRecordEntity record, {
-    Transaction? transaction,
-  }) async {
-    final exerciseEntities = await ExerciseRecordEntity.db.find(
-      session,
-      where: (table) => table.workoutId.equals(record.id!),
-      orderBy: (table) => table.position,
-      transaction: transaction,
-    );
-    final exercises = <ExerciseRecordDto>[];
-    for (final exercise in exerciseEntities) {
-      final setEntities = await SetRecordEntity.db.find(
-        session,
-        where: (table) => table.exerciseRecordId.equals(exercise.id!),
-        orderBy: (table) => table.position,
-        transaction: transaction,
-      );
-      exercises.add(
-        ExerciseRecordDto(
-          exerciseId: exercise.exercisePublicId,
-          name: exercise.name,
-          muscleGroup: exercise.muscleGroup,
-          sets: setEntities
-              .map(
-                (set) => SetRecordDto(
-                  id: set.publicId,
-                  repetitions: set.repetitions,
-                  weightKg: set.weightKg,
-                ),
-              )
-              .toList(),
-        ),
-      );
-    }
-    return WorkoutRecordDto(
-      id: record.publicId,
-      trainingDayId: record.trainingDayPublicId,
-      title: record.title,
-      startedAt: record.startedAt,
-      completedAt: record.completedAt,
-      exercises: exercises,
     );
   }
 

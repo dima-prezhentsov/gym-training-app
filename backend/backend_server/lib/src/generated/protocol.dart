@@ -27,15 +27,20 @@ import 'history/set_record_entity.dart' as _i11;
 import 'history/workout_history_validation_exception.dart' as _i12;
 import 'history/workout_record_dto.dart' as _i13;
 import 'history/workout_record_entity.dart' as _i14;
-import 'schedule/exercise_dto.dart' as _i15;
-import 'schedule/exercise_entity.dart' as _i16;
-import 'schedule/schedule_validation_exception.dart' as _i17;
-import 'schedule/training_day_dto.dart' as _i18;
-import 'schedule/training_day_entity.dart' as _i19;
-import 'schedule/training_schedule_dto.dart' as _i20;
-import 'schedule/training_schedule_entity.dart' as _i21;
+import 'progress/exercise_progress_dto.dart' as _i15;
+import 'progress/exercise_progress_point_dto.dart' as _i16;
+import 'progress/muscle_group_progress_dto.dart' as _i17;
+import 'progress/personal_record_dto.dart' as _i18;
+import 'progress/progress_overview_dto.dart' as _i19;
+import 'schedule/exercise_dto.dart' as _i20;
+import 'schedule/exercise_entity.dart' as _i21;
+import 'schedule/schedule_validation_exception.dart' as _i22;
+import 'schedule/training_day_dto.dart' as _i23;
+import 'schedule/training_day_entity.dart' as _i24;
+import 'schedule/training_schedule_dto.dart' as _i25;
+import 'schedule/training_schedule_entity.dart' as _i26;
 import 'package:backend_server/src/generated/history/workout_record_dto.dart'
-    as _i22;
+    as _i27;
 export 'auth/telegram_account.dart';
 export 'auth/telegram_authentication_exception.dart';
 export 'greetings/greeting.dart';
@@ -46,6 +51,11 @@ export 'history/set_record_entity.dart';
 export 'history/workout_history_validation_exception.dart';
 export 'history/workout_record_dto.dart';
 export 'history/workout_record_entity.dart';
+export 'progress/exercise_progress_dto.dart';
+export 'progress/exercise_progress_point_dto.dart';
+export 'progress/muscle_group_progress_dto.dart';
+export 'progress/personal_record_dto.dart';
+export 'progress/progress_overview_dto.dart';
 export 'schedule/exercise_dto.dart';
 export 'schedule/exercise_entity.dart';
 export 'schedule/schedule_validation_exception.dart';
@@ -775,26 +785,41 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i14.WorkoutRecordEntity) {
       return _i14.WorkoutRecordEntity.fromJson(data) as T;
     }
-    if (t == _i15.ExerciseDto) {
-      return _i15.ExerciseDto.fromJson(data) as T;
+    if (t == _i15.ExerciseProgressDto) {
+      return _i15.ExerciseProgressDto.fromJson(data) as T;
     }
-    if (t == _i16.ExerciseEntity) {
-      return _i16.ExerciseEntity.fromJson(data) as T;
+    if (t == _i16.ExerciseProgressPointDto) {
+      return _i16.ExerciseProgressPointDto.fromJson(data) as T;
     }
-    if (t == _i17.ScheduleValidationException) {
-      return _i17.ScheduleValidationException.fromJson(data) as T;
+    if (t == _i17.MuscleGroupProgressDto) {
+      return _i17.MuscleGroupProgressDto.fromJson(data) as T;
     }
-    if (t == _i18.TrainingDayDto) {
-      return _i18.TrainingDayDto.fromJson(data) as T;
+    if (t == _i18.PersonalRecordDto) {
+      return _i18.PersonalRecordDto.fromJson(data) as T;
     }
-    if (t == _i19.TrainingDayEntity) {
-      return _i19.TrainingDayEntity.fromJson(data) as T;
+    if (t == _i19.ProgressOverviewDto) {
+      return _i19.ProgressOverviewDto.fromJson(data) as T;
     }
-    if (t == _i20.TrainingScheduleDto) {
-      return _i20.TrainingScheduleDto.fromJson(data) as T;
+    if (t == _i20.ExerciseDto) {
+      return _i20.ExerciseDto.fromJson(data) as T;
     }
-    if (t == _i21.TrainingScheduleEntity) {
-      return _i21.TrainingScheduleEntity.fromJson(data) as T;
+    if (t == _i21.ExerciseEntity) {
+      return _i21.ExerciseEntity.fromJson(data) as T;
+    }
+    if (t == _i22.ScheduleValidationException) {
+      return _i22.ScheduleValidationException.fromJson(data) as T;
+    }
+    if (t == _i23.TrainingDayDto) {
+      return _i23.TrainingDayDto.fromJson(data) as T;
+    }
+    if (t == _i24.TrainingDayEntity) {
+      return _i24.TrainingDayEntity.fromJson(data) as T;
+    }
+    if (t == _i25.TrainingScheduleDto) {
+      return _i25.TrainingScheduleDto.fromJson(data) as T;
+    }
+    if (t == _i26.TrainingScheduleEntity) {
+      return _i26.TrainingScheduleEntity.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.TelegramAccount?>()) {
       return (data != null ? _i5.TelegramAccount.fromJson(data) : null) as T;
@@ -834,30 +859,51 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data != null ? _i14.WorkoutRecordEntity.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i15.ExerciseDto?>()) {
-      return (data != null ? _i15.ExerciseDto.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i15.ExerciseProgressDto?>()) {
+      return (data != null ? _i15.ExerciseProgressDto.fromJson(data) : null)
+          as T;
     }
-    if (t == _i1.getType<_i16.ExerciseEntity?>()) {
-      return (data != null ? _i16.ExerciseEntity.fromJson(data) : null) as T;
-    }
-    if (t == _i1.getType<_i17.ScheduleValidationException?>()) {
+    if (t == _i1.getType<_i16.ExerciseProgressPointDto?>()) {
       return (data != null
-              ? _i17.ScheduleValidationException.fromJson(data)
+              ? _i16.ExerciseProgressPointDto.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i18.TrainingDayDto?>()) {
-      return (data != null ? _i18.TrainingDayDto.fromJson(data) : null) as T;
-    }
-    if (t == _i1.getType<_i19.TrainingDayEntity?>()) {
-      return (data != null ? _i19.TrainingDayEntity.fromJson(data) : null) as T;
-    }
-    if (t == _i1.getType<_i20.TrainingScheduleDto?>()) {
-      return (data != null ? _i20.TrainingScheduleDto.fromJson(data) : null)
+    if (t == _i1.getType<_i17.MuscleGroupProgressDto?>()) {
+      return (data != null ? _i17.MuscleGroupProgressDto.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i21.TrainingScheduleEntity?>()) {
-      return (data != null ? _i21.TrainingScheduleEntity.fromJson(data) : null)
+    if (t == _i1.getType<_i18.PersonalRecordDto?>()) {
+      return (data != null ? _i18.PersonalRecordDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i19.ProgressOverviewDto?>()) {
+      return (data != null ? _i19.ProgressOverviewDto.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i20.ExerciseDto?>()) {
+      return (data != null ? _i20.ExerciseDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i21.ExerciseEntity?>()) {
+      return (data != null ? _i21.ExerciseEntity.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i22.ScheduleValidationException?>()) {
+      return (data != null
+              ? _i22.ScheduleValidationException.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _i1.getType<_i23.TrainingDayDto?>()) {
+      return (data != null ? _i23.TrainingDayDto.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i24.TrainingDayEntity?>()) {
+      return (data != null ? _i24.TrainingDayEntity.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i25.TrainingScheduleDto?>()) {
+      return (data != null ? _i25.TrainingScheduleDto.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i26.TrainingScheduleEntity?>()) {
+      return (data != null ? _i26.TrainingScheduleEntity.fromJson(data) : null)
           as T;
     }
     if (t == List<_i10.SetRecordDto>) {
@@ -872,21 +918,45 @@ class Protocol extends _i1.SerializationManagerServer {
               .toList()
           as T;
     }
-    if (t == List<_i15.ExerciseDto>) {
+    if (t == List<_i16.ExerciseProgressPointDto>) {
       return (data as List)
-              .map((e) => deserialize<_i15.ExerciseDto>(e))
+              .map((e) => deserialize<_i16.ExerciseProgressPointDto>(e))
               .toList()
           as T;
     }
-    if (t == List<_i18.TrainingDayDto>) {
+    if (t == List<_i15.ExerciseProgressDto>) {
       return (data as List)
-              .map((e) => deserialize<_i18.TrainingDayDto>(e))
+              .map((e) => deserialize<_i15.ExerciseProgressDto>(e))
               .toList()
           as T;
     }
-    if (t == List<_i22.WorkoutRecordDto>) {
+    if (t == List<_i17.MuscleGroupProgressDto>) {
       return (data as List)
-              .map((e) => deserialize<_i22.WorkoutRecordDto>(e))
+              .map((e) => deserialize<_i17.MuscleGroupProgressDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i18.PersonalRecordDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i18.PersonalRecordDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i20.ExerciseDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i20.ExerciseDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i23.TrainingDayDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i23.TrainingDayDto>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i27.WorkoutRecordDto>) {
+      return (data as List)
+              .map((e) => deserialize<_i27.WorkoutRecordDto>(e))
               .toList()
           as T;
     }
@@ -915,13 +985,18 @@ class Protocol extends _i1.SerializationManagerServer {
         'WorkoutHistoryValidationException',
       _i13.WorkoutRecordDto => 'WorkoutRecordDto',
       _i14.WorkoutRecordEntity => 'WorkoutRecordEntity',
-      _i15.ExerciseDto => 'ExerciseDto',
-      _i16.ExerciseEntity => 'ExerciseEntity',
-      _i17.ScheduleValidationException => 'ScheduleValidationException',
-      _i18.TrainingDayDto => 'TrainingDayDto',
-      _i19.TrainingDayEntity => 'TrainingDayEntity',
-      _i20.TrainingScheduleDto => 'TrainingScheduleDto',
-      _i21.TrainingScheduleEntity => 'TrainingScheduleEntity',
+      _i15.ExerciseProgressDto => 'ExerciseProgressDto',
+      _i16.ExerciseProgressPointDto => 'ExerciseProgressPointDto',
+      _i17.MuscleGroupProgressDto => 'MuscleGroupProgressDto',
+      _i18.PersonalRecordDto => 'PersonalRecordDto',
+      _i19.ProgressOverviewDto => 'ProgressOverviewDto',
+      _i20.ExerciseDto => 'ExerciseDto',
+      _i21.ExerciseEntity => 'ExerciseEntity',
+      _i22.ScheduleValidationException => 'ScheduleValidationException',
+      _i23.TrainingDayDto => 'TrainingDayDto',
+      _i24.TrainingDayEntity => 'TrainingDayEntity',
+      _i25.TrainingScheduleDto => 'TrainingScheduleDto',
+      _i26.TrainingScheduleEntity => 'TrainingScheduleEntity',
       _ => null,
     };
   }
@@ -956,19 +1031,29 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'WorkoutRecordDto';
       case _i14.WorkoutRecordEntity():
         return 'WorkoutRecordEntity';
-      case _i15.ExerciseDto():
+      case _i15.ExerciseProgressDto():
+        return 'ExerciseProgressDto';
+      case _i16.ExerciseProgressPointDto():
+        return 'ExerciseProgressPointDto';
+      case _i17.MuscleGroupProgressDto():
+        return 'MuscleGroupProgressDto';
+      case _i18.PersonalRecordDto():
+        return 'PersonalRecordDto';
+      case _i19.ProgressOverviewDto():
+        return 'ProgressOverviewDto';
+      case _i20.ExerciseDto():
         return 'ExerciseDto';
-      case _i16.ExerciseEntity():
+      case _i21.ExerciseEntity():
         return 'ExerciseEntity';
-      case _i17.ScheduleValidationException():
+      case _i22.ScheduleValidationException():
         return 'ScheduleValidationException';
-      case _i18.TrainingDayDto():
+      case _i23.TrainingDayDto():
         return 'TrainingDayDto';
-      case _i19.TrainingDayEntity():
+      case _i24.TrainingDayEntity():
         return 'TrainingDayEntity';
-      case _i20.TrainingScheduleDto():
+      case _i25.TrainingScheduleDto():
         return 'TrainingScheduleDto';
-      case _i21.TrainingScheduleEntity():
+      case _i26.TrainingScheduleEntity():
         return 'TrainingScheduleEntity';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -1022,26 +1107,41 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'WorkoutRecordEntity') {
       return deserialize<_i14.WorkoutRecordEntity>(data['data']);
     }
+    if (dataClassName == 'ExerciseProgressDto') {
+      return deserialize<_i15.ExerciseProgressDto>(data['data']);
+    }
+    if (dataClassName == 'ExerciseProgressPointDto') {
+      return deserialize<_i16.ExerciseProgressPointDto>(data['data']);
+    }
+    if (dataClassName == 'MuscleGroupProgressDto') {
+      return deserialize<_i17.MuscleGroupProgressDto>(data['data']);
+    }
+    if (dataClassName == 'PersonalRecordDto') {
+      return deserialize<_i18.PersonalRecordDto>(data['data']);
+    }
+    if (dataClassName == 'ProgressOverviewDto') {
+      return deserialize<_i19.ProgressOverviewDto>(data['data']);
+    }
     if (dataClassName == 'ExerciseDto') {
-      return deserialize<_i15.ExerciseDto>(data['data']);
+      return deserialize<_i20.ExerciseDto>(data['data']);
     }
     if (dataClassName == 'ExerciseEntity') {
-      return deserialize<_i16.ExerciseEntity>(data['data']);
+      return deserialize<_i21.ExerciseEntity>(data['data']);
     }
     if (dataClassName == 'ScheduleValidationException') {
-      return deserialize<_i17.ScheduleValidationException>(data['data']);
+      return deserialize<_i22.ScheduleValidationException>(data['data']);
     }
     if (dataClassName == 'TrainingDayDto') {
-      return deserialize<_i18.TrainingDayDto>(data['data']);
+      return deserialize<_i23.TrainingDayDto>(data['data']);
     }
     if (dataClassName == 'TrainingDayEntity') {
-      return deserialize<_i19.TrainingDayEntity>(data['data']);
+      return deserialize<_i24.TrainingDayEntity>(data['data']);
     }
     if (dataClassName == 'TrainingScheduleDto') {
-      return deserialize<_i20.TrainingScheduleDto>(data['data']);
+      return deserialize<_i25.TrainingScheduleDto>(data['data']);
     }
     if (dataClassName == 'TrainingScheduleEntity') {
-      return deserialize<_i21.TrainingScheduleEntity>(data['data']);
+      return deserialize<_i26.TrainingScheduleEntity>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -1087,12 +1187,12 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i11.SetRecordEntity.t;
       case _i14.WorkoutRecordEntity:
         return _i14.WorkoutRecordEntity.t;
-      case _i16.ExerciseEntity:
-        return _i16.ExerciseEntity.t;
-      case _i19.TrainingDayEntity:
-        return _i19.TrainingDayEntity.t;
-      case _i21.TrainingScheduleEntity:
-        return _i21.TrainingScheduleEntity.t;
+      case _i21.ExerciseEntity:
+        return _i21.ExerciseEntity.t;
+      case _i24.TrainingDayEntity:
+        return _i24.TrainingDayEntity.t;
+      case _i26.TrainingScheduleEntity:
+        return _i26.TrainingScheduleEntity.t;
     }
     return null;
   }

@@ -19,8 +19,10 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
 import 'package:backend_server/src/generated/greetings/greeting.dart' as _i5;
 import 'package:backend_server/src/generated/history/workout_record_dto.dart'
     as _i6;
-import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
+import 'package:backend_server/src/generated/progress/progress_overview_dto.dart'
     as _i7;
+import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
+    as _i8;
 import 'package:backend_server/src/generated/protocol.dart';
 import 'package:backend_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -143,6 +145,8 @@ class TestEndpoints {
 
   late final _WorkoutHistoryEndpoint workoutHistory;
 
+  late final _ProgressEndpoint progress;
+
   late final _TrainingScheduleEndpoint trainingSchedule;
 }
 
@@ -166,6 +170,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     workoutHistory = _WorkoutHistoryEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    progress = _ProgressEndpoint(
       endpoints,
       serializationManager,
     );
@@ -374,6 +382,52 @@ class _WorkoutHistoryEndpoint {
   }
 }
 
+class _ProgressEndpoint {
+  _ProgressEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i7.ProgressOverviewDto> get(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required String period,
+    required int utcOffsetMinutes,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'progress',
+            method: 'get',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'progress',
+          methodName: 'get',
+          parameters: _i1.testObjectToJson({
+            'period': period,
+            'utcOffsetMinutes': utcOffsetMinutes,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i7.ProgressOverviewDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _TrainingScheduleEndpoint {
   _TrainingScheduleEndpoint(
     this._endpointDispatch,
@@ -384,7 +438,7 @@ class _TrainingScheduleEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i7.TrainingScheduleDto?> get(
+  _i3.Future<_i8.TrainingScheduleDto?> get(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -406,7 +460,7 @@ class _TrainingScheduleEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i7.TrainingScheduleDto?>);
+                as _i3.Future<_i8.TrainingScheduleDto?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -414,9 +468,9 @@ class _TrainingScheduleEndpoint {
     });
   }
 
-  _i3.Future<_i7.TrainingScheduleDto> save(
+  _i3.Future<_i8.TrainingScheduleDto> save(
     _i1.TestSessionBuilder sessionBuilder,
-    _i7.TrainingScheduleDto schedule,
+    _i8.TrainingScheduleDto schedule,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -437,7 +491,7 @@ class _TrainingScheduleEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i7.TrainingScheduleDto>);
+                as _i3.Future<_i8.TrainingScheduleDto>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

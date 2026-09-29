@@ -1,0 +1,6 @@
+class: ExerciseProgressPointDto
+fields:
+  date: DateTime
+  estimatedMaxKg: double
+  maxWeightKg: double
+  volumeKg: double

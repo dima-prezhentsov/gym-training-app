@@ -1,0 +1,4 @@
+class: MuscleGroupProgressDto
+fields:
+  group: String
+  setCount: int

@@ -29,10 +29,7 @@ void main() {
       : null;
   final progressRepository =
       scheduleRepository != null && workoutRepository != null
-      ? ServerpodProgressRepository(
-          scheduleRepository: scheduleRepository,
-          workoutRepository: workoutRepository,
-        )
+      ? ServerpodProgressRepository(backendSession)
       : null;
   runApp(
     GymTrainingApp(

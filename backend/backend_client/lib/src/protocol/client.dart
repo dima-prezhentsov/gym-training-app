@@ -18,11 +18,13 @@ import 'dart:async' as _i3;
 import 'package:backend_client/src/protocol/greetings/greeting.dart' as _i4;
 import 'package:backend_client/src/protocol/history/workout_record_dto.dart'
     as _i5;
-import 'package:backend_client/src/protocol/schedule/training_schedule_dto.dart'
+import 'package:backend_client/src/protocol/progress/progress_overview_dto.dart'
     as _i6;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+import 'package:backend_client/src/protocol/schedule/training_schedule_dto.dart'
     as _i7;
-import 'protocol.dart' as _i8;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+    as _i8;
+import 'protocol.dart' as _i9;
 
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
@@ -118,21 +120,41 @@ class EndpointWorkoutHistory extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointProgress extends _i2.EndpointRef {
+  EndpointProgress(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'progress';
+
+  _i3.Future<_i6.ProgressOverviewDto> get({
+    required String period,
+    required int utcOffsetMinutes,
+  }) => caller.callServerEndpoint<_i6.ProgressOverviewDto>(
+    'progress',
+    'get',
+    {
+      'period': period,
+      'utcOffsetMinutes': utcOffsetMinutes,
+    },
+  );
+}
+
+/// {@category Endpoint}
 class EndpointTrainingSchedule extends _i2.EndpointRef {
   EndpointTrainingSchedule(_i2.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'trainingSchedule';
 
-  _i3.Future<_i6.TrainingScheduleDto?> get() =>
-      caller.callServerEndpoint<_i6.TrainingScheduleDto?>(
+  _i3.Future<_i7.TrainingScheduleDto?> get() =>
+      caller.callServerEndpoint<_i7.TrainingScheduleDto?>(
         'trainingSchedule',
         'get',
         {},
       );
 
-  _i3.Future<_i6.TrainingScheduleDto> save(_i6.TrainingScheduleDto schedule) =>
-      caller.callServerEndpoint<_i6.TrainingScheduleDto>(
+  _i3.Future<_i7.TrainingScheduleDto> save(_i7.TrainingScheduleDto schedule) =>
+      caller.callServerEndpoint<_i7.TrainingScheduleDto>(
         'trainingSchedule',
         'save',
         {'schedule': schedule},
@@ -148,12 +170,12 @@ class EndpointTrainingSchedule extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_core = _i1.Caller(client);
-    serverpod_auth_idp = _i7.Caller(client);
+    serverpod_auth_idp = _i8.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_core;
 
-  late final _i7.Caller serverpod_auth_idp;
+  late final _i8.Caller serverpod_auth_idp;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -176,7 +198,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i8.Protocol(),
+         _i9.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -189,6 +211,7 @@ class Client extends _i2.ServerpodClientShared {
     telegramAuth = EndpointTelegramAuth(this);
     greeting = EndpointGreeting(this);
     workoutHistory = EndpointWorkoutHistory(this);
+    progress = EndpointProgress(this);
     trainingSchedule = EndpointTrainingSchedule(this);
     modules = Modules(this);
   }
@@ -201,6 +224,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointWorkoutHistory workoutHistory;
 
+  late final EndpointProgress progress;
+
   late final EndpointTrainingSchedule trainingSchedule;
 
   late final Modules modules;
@@ -211,6 +236,7 @@ class Client extends _i2.ServerpodClientShared {
     'telegramAuth': telegramAuth,
     'greeting': greeting,
     'workoutHistory': workoutHistory,
+    'progress': progress,
     'trainingSchedule': trainingSchedule,
   };
 

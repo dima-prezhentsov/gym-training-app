@@ -1,0 +1,10 @@
+class: ProgressOverviewDto
+fields:
+  currentStreakDays: int
+  bestStreakDays: int
+  workoutCount: int
+  totalMinutes: int
+  totalSets: int
+  exercises: List<ExerciseProgressDto>
+  muscleGroups: List<MuscleGroupProgressDto>
+  personalRecords: List<PersonalRecordDto>
