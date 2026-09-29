@@ -1,0 +1,15 @@
+class: FriendInviteEntity
+serverOnly: true
+table: friend_invite
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  code: String
+  creator: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+  expiresAt: DateTime
+  createdAt: DateTime, defaultModel=now
+indexes:
+  friend_invite_code_idx:
+    fields: code
+    unique: true
+  friend_invite_creator_idx:
+    fields: creatorId

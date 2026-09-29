@@ -15,16 +15,20 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i1;
 import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
-import 'package:backend_client/src/protocol/greetings/greeting.dart' as _i4;
-import 'package:backend_client/src/protocol/history/workout_record_dto.dart'
+import 'package:backend_client/src/protocol/friends/friend_invite_dto.dart'
+    as _i4;
+import 'package:backend_client/src/protocol/friends/friend_connection_dto.dart'
     as _i5;
 import 'package:backend_client/src/protocol/progress/progress_overview_dto.dart'
     as _i6;
-import 'package:backend_client/src/protocol/schedule/training_schedule_dto.dart'
+import 'package:backend_client/src/protocol/history/workout_record_dto.dart'
     as _i7;
+import 'package:backend_client/src/protocol/greetings/greeting.dart' as _i8;
+import 'package:backend_client/src/protocol/schedule/training_schedule_dto.dart'
+    as _i9;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i8;
-import 'protocol.dart' as _i9;
+    as _i10;
+import 'protocol.dart' as _i11;
 
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
@@ -71,11 +75,97 @@ class EndpointTelegramAuth extends _i2.EndpointRef {
   @override
   String get name => 'telegramAuth';
 
-  _i3.Future<_i1.AuthSuccess> authenticate(String initData) =>
-      caller.callServerEndpoint<_i1.AuthSuccess>(
-        'telegramAuth',
-        'authenticate',
-        {'initData': initData},
+  _i3.Future<_i1.AuthSuccess> authenticate(
+    String initData, {
+    int? utcOffsetMinutes,
+  }) => caller.callServerEndpoint<_i1.AuthSuccess>(
+    'telegramAuth',
+    'authenticate',
+    {
+      'initData': initData,
+      'utcOffsetMinutes': utcOffsetMinutes,
+    },
+  );
+}
+
+/// {@category Endpoint}
+class EndpointFriends extends _i2.EndpointRef {
+  EndpointFriends(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'friends';
+
+  _i3.Future<_i4.FriendInviteDto> createInvite() =>
+      caller.callServerEndpoint<_i4.FriendInviteDto>(
+        'friends',
+        'createInvite',
+        {},
+      );
+
+  _i3.Future<_i5.FriendConnectionDto> redeemInvite(String code) =>
+      caller.callServerEndpoint<_i5.FriendConnectionDto>(
+        'friends',
+        'redeemInvite',
+        {'code': code},
+      );
+
+  _i3.Future<List<_i5.FriendConnectionDto>> list() =>
+      caller.callServerEndpoint<List<_i5.FriendConnectionDto>>(
+        'friends',
+        'list',
+        {},
+      );
+
+  _i3.Future<_i5.FriendConnectionDto> accept(String userId) =>
+      caller.callServerEndpoint<_i5.FriendConnectionDto>(
+        'friends',
+        'accept',
+        {'userId': userId},
+      );
+
+  _i3.Future<void> decline(String userId) => caller.callServerEndpoint<void>(
+    'friends',
+    'decline',
+    {'userId': userId},
+  );
+
+  _i3.Future<void> remove(String userId) => caller.callServerEndpoint<void>(
+    'friends',
+    'remove',
+    {'userId': userId},
+  );
+
+  _i3.Future<_i5.FriendConnectionDto> setSharing(
+    String userId, {
+    required bool stats,
+    required bool history,
+  }) => caller.callServerEndpoint<_i5.FriendConnectionDto>(
+    'friends',
+    'setSharing',
+    {
+      'userId': userId,
+      'stats': stats,
+      'history': history,
+    },
+  );
+
+  _i3.Future<_i6.ProgressOverviewDto> getProgress(
+    String userId, {
+    required String period,
+  }) => caller.callServerEndpoint<_i6.ProgressOverviewDto>(
+    'friends',
+    'getProgress',
+    {
+      'userId': userId,
+      'period': period,
+    },
+  );
+
+  _i3.Future<List<_i7.WorkoutRecordDto>> getHistory(String userId) =>
+      caller.callServerEndpoint<List<_i7.WorkoutRecordDto>>(
+        'friends',
+        'getHistory',
+        {'userId': userId},
       );
 }
 
@@ -89,8 +179,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i4.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i4.Greeting>(
+  _i3.Future<_i8.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i8.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -104,15 +194,15 @@ class EndpointWorkoutHistory extends _i2.EndpointRef {
   @override
   String get name => 'workoutHistory';
 
-  _i3.Future<List<_i5.WorkoutRecordDto>> list() =>
-      caller.callServerEndpoint<List<_i5.WorkoutRecordDto>>(
+  _i3.Future<List<_i7.WorkoutRecordDto>> list() =>
+      caller.callServerEndpoint<List<_i7.WorkoutRecordDto>>(
         'workoutHistory',
         'list',
         {},
       );
 
-  _i3.Future<_i5.WorkoutRecordDto> save(_i5.WorkoutRecordDto record) =>
-      caller.callServerEndpoint<_i5.WorkoutRecordDto>(
+  _i3.Future<_i7.WorkoutRecordDto> save(_i7.WorkoutRecordDto record) =>
+      caller.callServerEndpoint<_i7.WorkoutRecordDto>(
         'workoutHistory',
         'save',
         {'record': record},
@@ -146,15 +236,15 @@ class EndpointTrainingSchedule extends _i2.EndpointRef {
   @override
   String get name => 'trainingSchedule';
 
-  _i3.Future<_i7.TrainingScheduleDto?> get() =>
-      caller.callServerEndpoint<_i7.TrainingScheduleDto?>(
+  _i3.Future<_i9.TrainingScheduleDto?> get() =>
+      caller.callServerEndpoint<_i9.TrainingScheduleDto?>(
         'trainingSchedule',
         'get',
         {},
       );
 
-  _i3.Future<_i7.TrainingScheduleDto> save(_i7.TrainingScheduleDto schedule) =>
-      caller.callServerEndpoint<_i7.TrainingScheduleDto>(
+  _i3.Future<_i9.TrainingScheduleDto> save(_i9.TrainingScheduleDto schedule) =>
+      caller.callServerEndpoint<_i9.TrainingScheduleDto>(
         'trainingSchedule',
         'save',
         {'schedule': schedule},
@@ -170,12 +260,12 @@ class EndpointTrainingSchedule extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_core = _i1.Caller(client);
-    serverpod_auth_idp = _i8.Caller(client);
+    serverpod_auth_idp = _i10.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_core;
 
-  late final _i8.Caller serverpod_auth_idp;
+  late final _i10.Caller serverpod_auth_idp;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -198,7 +288,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i9.Protocol(),
+         _i11.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -209,6 +299,7 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     jwtRefresh = EndpointJwtRefresh(this);
     telegramAuth = EndpointTelegramAuth(this);
+    friends = EndpointFriends(this);
     greeting = EndpointGreeting(this);
     workoutHistory = EndpointWorkoutHistory(this);
     progress = EndpointProgress(this);
@@ -219,6 +310,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointJwtRefresh jwtRefresh;
 
   late final EndpointTelegramAuth telegramAuth;
+
+  late final EndpointFriends friends;
 
   late final EndpointGreeting greeting;
 
@@ -234,6 +327,7 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'jwtRefresh': jwtRefresh,
     'telegramAuth': telegramAuth,
+    'friends': friends,
     'greeting': greeting,
     'workoutHistory': workoutHistory,
     'progress': progress,

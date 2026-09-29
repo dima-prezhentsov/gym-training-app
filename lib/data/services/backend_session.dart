@@ -112,7 +112,10 @@ class BackendSession extends ChangeNotifier {
         await client.auth.initialize();
       },
       authenticateTelegram: (initData) async {
-        final authSuccess = await client.telegramAuth.authenticate(initData);
+        final authSuccess = await client.telegramAuth.authenticate(
+          initData,
+          utcOffsetMinutes: DateTime.now().timeZoneOffset.inMinutes,
+        );
         await client.auth.updateSignedInUser(authSuccess);
       },
       isAuthenticated: () => client.auth.isAuthenticated,

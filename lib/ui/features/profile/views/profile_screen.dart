@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -61,6 +62,19 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Card(
+            child: ListTile(
+              leading: const Icon(
+                Icons.people_outline_rounded,
+                color: AppColors.lime,
+              ),
+              title: const Text('Друзья'),
+              subtitle: const Text('Приглашения и доступ к тренировкам'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push('/friends'),
             ),
           ),
           const SizedBox(height: 24),

@@ -52,3 +52,8 @@ flutter build web --release --dart-define=BACKEND_URL=https://api.example.com/
 Без `BACKEND_URL` приложение продолжает работать в режиме локального
 предпросмотра, но синхронизация отключена. Для GitHub Pages задайте repository
 variable `BACKEND_URL` в **Settings → Secrets and variables → Actions → Variables**.
+
+Для приглашений друзей задайте там же `TELEGRAM_MINI_APP_LINK` — прямую ссылку
+Mini App из BotFather (например, `https://t.me/your_bot/your_app`). Приложение
+добавит к ней параметр `startapp` с кодом приглашения на 7 дней. Без этой
+переменной можно вводить код вручную в локальном предпросмотре.

@@ -1,0 +1,11 @@
+class: FriendConnectionDto
+fields:
+  userId: String
+  displayName: String
+  username: String?
+  status: String
+  isIncoming: bool
+  sharesStats: bool
+  sharesHistory: bool
+  canViewStats: bool
+  canViewHistory: bool

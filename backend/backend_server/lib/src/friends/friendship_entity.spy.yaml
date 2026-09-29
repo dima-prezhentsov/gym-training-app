@@ -1,0 +1,22 @@
+### One pair of users. Shares are directional and private by default.
+class: FriendshipEntity
+serverOnly: true
+table: friendship
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  userA: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+  userB: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+  requestedById: UuidValue
+  status: String
+  aSharesStats: bool
+  aSharesHistory: bool
+  bSharesStats: bool
+  bSharesHistory: bool
+  createdAt: DateTime, defaultModel=now
+  updatedAt: DateTime, defaultModel=now
+indexes:
+  friendship_pair_idx:
+    fields: userAId, userBId
+    unique: true
+  friendship_user_b_idx:
+    fields: userBId

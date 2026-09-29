@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/fixtures/demo_workout_history.dart';
+import '../data/repositories/friends_repository.dart';
+import '../data/repositories/in_memory_friends_repository.dart';
 import '../data/repositories/in_memory_progress_repository.dart';
 import '../data/repositories/in_memory_training_schedule_repository.dart';
 import '../data/repositories/in_memory_training_overview_repository.dart';
@@ -27,6 +29,7 @@ class GymTrainingApp extends StatelessWidget {
     TrainingScheduleRepository? scheduleRepository,
     WorkoutRepository? workoutRepository,
     ProgressRepository? progressRepository,
+    FriendsRepository? friendsRepository,
     BackendSession? backendSession,
   }) {
     final effectiveSchedule =
@@ -51,6 +54,7 @@ class GymTrainingApp extends StatelessWidget {
             scheduleRepository: effectiveSchedule,
             workoutRepository: effectiveWorkout,
           ),
+      friendsRepository: friendsRepository ?? InMemoryFriendsRepository(),
       backendSession: backendSession ?? BackendSession.fromEnvironment(),
     );
   }
@@ -62,14 +66,16 @@ class GymTrainingApp extends StatelessWidget {
     required this.scheduleRepository,
     required this.workoutRepository,
     required this.progressRepository,
+    required this.friendsRepository,
     required this.backendSession,
-  }) : router = createAppRouter();
+  }) : router = createAppRouter(startParam: telegram.startParam);
 
   final TelegramLaunchData telegram;
   final TrainingOverviewRepository trainingRepository;
   final TrainingScheduleRepository scheduleRepository;
   final WorkoutRepository workoutRepository;
   final ProgressRepository progressRepository;
+  final FriendsRepository friendsRepository;
   final BackendSession backendSession;
   final AppRouter router;
 
@@ -78,6 +84,7 @@ class GymTrainingApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<TelegramLaunchData>.value(value: telegram),
+        Provider<FriendsRepository>.value(value: friendsRepository),
         ChangeNotifierProvider<BackendSession>.value(
           value: backendSession..initialize(telegram),
         ),

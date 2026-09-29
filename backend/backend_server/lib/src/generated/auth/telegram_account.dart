@@ -26,6 +26,7 @@ abstract class TelegramAccount
     this.lastName,
     this.username,
     this.languageCode,
+    this.utcOffsetMinutes,
     required this.authUserId,
     this.authUser,
     DateTime? createdAt,
@@ -40,6 +41,7 @@ abstract class TelegramAccount
     String? lastName,
     String? username,
     String? languageCode,
+    int? utcOffsetMinutes,
     required _i1.UuidValue authUserId,
     _i2.AuthUser? authUser,
     DateTime? createdAt,
@@ -56,6 +58,7 @@ abstract class TelegramAccount
       lastName: jsonSerialization['lastName'] as String?,
       username: jsonSerialization['username'] as String?,
       languageCode: jsonSerialization['languageCode'] as String?,
+      utcOffsetMinutes: jsonSerialization['utcOffsetMinutes'] as int?,
       authUserId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['authUserId'],
       ),
@@ -90,6 +93,8 @@ abstract class TelegramAccount
 
   String? languageCode;
 
+  int? utcOffsetMinutes;
+
   _i1.UuidValue authUserId;
 
   _i2.AuthUser? authUser;
@@ -111,6 +116,7 @@ abstract class TelegramAccount
     String? lastName,
     String? username,
     String? languageCode,
+    int? utcOffsetMinutes,
     _i1.UuidValue? authUserId,
     _i2.AuthUser? authUser,
     DateTime? createdAt,
@@ -126,6 +132,7 @@ abstract class TelegramAccount
       if (lastName != null) 'lastName': lastName,
       if (username != null) 'username': username,
       if (languageCode != null) 'languageCode': languageCode,
+      if (utcOffsetMinutes != null) 'utcOffsetMinutes': utcOffsetMinutes,
       'authUserId': authUserId.toJson(),
       if (authUser != null) 'authUser': authUser?.toJson(),
       'createdAt': createdAt.toJson(),
@@ -178,6 +185,7 @@ class _TelegramAccountImpl extends TelegramAccount {
     String? lastName,
     String? username,
     String? languageCode,
+    int? utcOffsetMinutes,
     required _i1.UuidValue authUserId,
     _i2.AuthUser? authUser,
     DateTime? createdAt,
@@ -189,6 +197,7 @@ class _TelegramAccountImpl extends TelegramAccount {
          lastName: lastName,
          username: username,
          languageCode: languageCode,
+         utcOffsetMinutes: utcOffsetMinutes,
          authUserId: authUserId,
          authUser: authUser,
          createdAt: createdAt,
@@ -206,6 +215,7 @@ class _TelegramAccountImpl extends TelegramAccount {
     Object? lastName = _Undefined,
     Object? username = _Undefined,
     Object? languageCode = _Undefined,
+    Object? utcOffsetMinutes = _Undefined,
     _i1.UuidValue? authUserId,
     Object? authUser = _Undefined,
     DateTime? createdAt,
@@ -218,6 +228,9 @@ class _TelegramAccountImpl extends TelegramAccount {
       lastName: lastName is String? ? lastName : this.lastName,
       username: username is String? ? username : this.username,
       languageCode: languageCode is String? ? languageCode : this.languageCode,
+      utcOffsetMinutes: utcOffsetMinutes is int?
+          ? utcOffsetMinutes
+          : this.utcOffsetMinutes,
       authUserId: authUserId ?? this.authUserId,
       authUser: authUser is _i2.AuthUser?
           ? authUser
@@ -256,6 +269,11 @@ class TelegramAccountUpdateTable extends _i1.UpdateTable<TelegramAccountTable> {
         table.languageCode,
         value,
       );
+
+  _i1.ColumnValue<int, int> utcOffsetMinutes(int? value) => _i1.ColumnValue(
+    table.utcOffsetMinutes,
+    value,
+  );
 
   _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> authUserId(
     _i1.UuidValue value,
@@ -301,6 +319,10 @@ class TelegramAccountTable extends _i1.Table<_i1.UuidValue?> {
       'languageCode',
       this,
     );
+    utcOffsetMinutes = _i1.ColumnInt(
+      'utcOffsetMinutes',
+      this,
+    );
     authUserId = _i1.ColumnUuid(
       'authUserId',
       this,
@@ -326,6 +348,8 @@ class TelegramAccountTable extends _i1.Table<_i1.UuidValue?> {
   late final _i1.ColumnString username;
 
   late final _i1.ColumnString languageCode;
+
+  late final _i1.ColumnInt utcOffsetMinutes;
 
   late final _i1.ColumnUuid authUserId;
 
@@ -356,6 +380,7 @@ class TelegramAccountTable extends _i1.Table<_i1.UuidValue?> {
     lastName,
     username,
     languageCode,
+    utcOffsetMinutes,
     authUserId,
     createdAt,
     updatedAt,

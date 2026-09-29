@@ -38,6 +38,7 @@ jobs:
           flutter build web --release
           --base-href "/gym-training-app/"
           --dart-define=BACKEND_URL=${{ vars.BACKEND_URL }}
+          --dart-define=TELEGRAM_MINI_APP_LINK=${{ vars.TELEGRAM_MINI_APP_LINK }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

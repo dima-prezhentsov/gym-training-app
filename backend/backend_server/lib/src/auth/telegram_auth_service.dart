@@ -7,7 +7,15 @@ import 'telegram_init_data_validator.dart';
 class TelegramAuthService {
   static const authenticationMethod = 'telegram';
 
-  Future<AuthSuccess> authenticate(Session session, String initData) async {
+  Future<AuthSuccess> authenticate(
+    Session session,
+    String initData, {
+    int? utcOffsetMinutes,
+  }) async {
+    if (utcOffsetMinutes != null &&
+        (utcOffsetMinutes < -720 || utcOffsetMinutes > 840)) {
+      throw TelegramAuthenticationException(reason: 'invalidTimeZone');
+    }
     final botToken = session.passwords['telegramBotToken'];
     if (botToken == null || botToken.isEmpty) {
       session.log(
@@ -58,6 +66,7 @@ class TelegramAuthService {
               lastName: telegramUser.lastName,
               username: telegramUser.username,
               languageCode: telegramUser.languageCode,
+              utcOffsetMinutes: utcOffsetMinutes,
               authUserId: authUser.id,
             ),
             transaction: transaction,
@@ -70,6 +79,7 @@ class TelegramAuthService {
               lastName: telegramUser.lastName,
               username: telegramUser.username,
               languageCode: telegramUser.languageCode,
+              utcOffsetMinutes: utcOffsetMinutes ?? account.utcOffsetMinutes,
               updatedAt: DateTime.now().toUtc(),
             ),
             transaction: transaction,

@@ -2,6 +2,16 @@ jwtRefresh:
   - refreshAccessToken:
 telegramAuth:
   - authenticate:
+friends:
+  - createInvite:
+  - redeemInvite:
+  - list:
+  - accept:
+  - decline:
+  - remove:
+  - setSharing:
+  - getProgress:
+  - getHistory:
 greeting:
   - hello:
 workoutHistory:

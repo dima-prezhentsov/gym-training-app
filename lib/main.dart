@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app/app.dart';
 import 'data/repositories/serverpod_progress_repository.dart';
+import 'data/repositories/serverpod_friends_repository.dart';
 import 'data/repositories/serverpod_training_schedule_repository.dart';
 import 'data/repositories/serverpod_training_overview_repository.dart';
 import 'data/repositories/serverpod_workout_repository.dart';
@@ -39,6 +40,9 @@ void main() {
       scheduleRepository: scheduleRepository,
       workoutRepository: workoutRepository,
       progressRepository: progressRepository,
+      friendsRepository: scheduleRepository != null
+          ? ServerpodFriendsRepository(backendSession)
+          : null,
     ),
   );
 }

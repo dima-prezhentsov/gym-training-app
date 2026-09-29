@@ -171,6 +171,50 @@ void main() {
     expect(find.text('tdesktop'), findsOneWidget);
   });
 
+  testWidgets('opens friends and shows sample progress with private sharing', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      GymTrainingApp(telegram: const TelegramLaunchData.browser()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Профиль'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Друзья'));
+    await tester.pumpAndSettle();
+    expect(find.text('Тренируйтесь вместе'), findsOneWidget);
+    expect(find.text('Анна'), findsOneWidget);
+    expect(find.text('Максим'), findsOneWidget);
+
+    await tester.tap(find.text('Анна'));
+    await tester.pumpAndSettle();
+    expect(find.text('Прогресс друга'), findsOneWidget);
+    expect(find.text('Рабочий вес'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('История друга'), 250);
+    expect(find.text('История друга'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('opens an invite directly on Telegram start parameter', (
+    tester,
+  ) async {
+    const telegram = TelegramLaunchData(
+      isTelegram: true,
+      platform: 'tdesktop',
+      version: '10.1',
+      isDarkMode: true,
+      startParam: 'invite_demo-code',
+    );
+    await tester.pumpWidget(GymTrainingApp(telegram: telegram));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Вас пригласили в друзья'), findsOneWidget);
+    expect(find.text('Тренируйтесь вместе'), findsOneWidget);
+  });
+
   testWidgets('animates today when it is a training day', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));

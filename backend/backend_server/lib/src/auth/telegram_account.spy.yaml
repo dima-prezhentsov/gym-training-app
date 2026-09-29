@@ -9,6 +9,7 @@ fields:
   lastName: String?
   username: String?
   languageCode: String?
+  utcOffsetMinutes: int?
   authUser: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
   createdAt: DateTime, defaultModel=now
   updatedAt: DateTime, defaultModel=now

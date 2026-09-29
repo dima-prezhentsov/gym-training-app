@@ -19,6 +19,8 @@ extension type TelegramWebAppJs(JSObject _) implements JSObject {
 
 extension type TelegramInitDataJs(JSObject _) implements JSObject {
   external TelegramUserJs? get user;
+  @JS('start_param')
+  external String? get startParam;
 }
 
 extension type TelegramUserJs(JSObject _) implements JSObject {
@@ -50,6 +52,9 @@ TelegramLaunchData initializeTelegramWebApp() {
     version: app.version,
     isDarkMode: app.colorScheme == 'dark',
     userName: user == null ? null : _displayName(user),
+    startParam:
+        app.initDataUnsafe.startParam ??
+        Uri.splitQueryString(app.initData)['start_param'],
     initData: app.initData,
   );
 }

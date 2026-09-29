@@ -16,13 +16,17 @@ import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
-import 'package:backend_server/src/generated/greetings/greeting.dart' as _i5;
-import 'package:backend_server/src/generated/history/workout_record_dto.dart'
+import 'package:backend_server/src/generated/friends/friend_invite_dto.dart'
+    as _i5;
+import 'package:backend_server/src/generated/friends/friend_connection_dto.dart'
     as _i6;
 import 'package:backend_server/src/generated/progress/progress_overview_dto.dart'
     as _i7;
-import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
+import 'package:backend_server/src/generated/history/workout_record_dto.dart'
     as _i8;
+import 'package:backend_server/src/generated/greetings/greeting.dart' as _i9;
+import 'package:backend_server/src/generated/schedule/training_schedule_dto.dart'
+    as _i10;
 import 'package:backend_server/src/generated/protocol.dart';
 import 'package:backend_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -141,6 +145,8 @@ class TestEndpoints {
 
   late final _TelegramAuthEndpoint telegramAuth;
 
+  late final _FriendsEndpoint friends;
+
   late final _GreetingEndpoint greeting;
 
   late final _WorkoutHistoryEndpoint workoutHistory;
@@ -162,6 +168,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     telegramAuth = _TelegramAuthEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    friends = _FriendsEndpoint(
       endpoints,
       serializationManager,
     );
@@ -238,8 +248,9 @@ class _TelegramAuthEndpoint {
 
   _i3.Future<_i4.AuthSuccess> authenticate(
     _i1.TestSessionBuilder sessionBuilder,
-    String initData,
-  ) async {
+    String initData, {
+    int? utcOffsetMinutes,
+  }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
@@ -251,7 +262,10 @@ class _TelegramAuthEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'telegramAuth',
           methodName: 'authenticate',
-          parameters: _i1.testObjectToJson({'initData': initData}),
+          parameters: _i1.testObjectToJson({
+            'initData': initData,
+            'utcOffsetMinutes': utcOffsetMinutes,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -260,6 +274,304 @@ class _TelegramAuthEndpoint {
                   _localCallContext.arguments,
                 )
                 as _i3.Future<_i4.AuthSuccess>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _FriendsEndpoint {
+  _FriendsEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i5.FriendInviteDto> createInvite(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'createInvite',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'createInvite',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i5.FriendInviteDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i6.FriendConnectionDto> redeemInvite(
+    _i1.TestSessionBuilder sessionBuilder,
+    String code,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'redeemInvite',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'redeemInvite',
+          parameters: _i1.testObjectToJson({'code': code}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i6.FriendConnectionDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i6.FriendConnectionDto>> list(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'list',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'list',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i6.FriendConnectionDto>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i6.FriendConnectionDto> accept(
+    _i1.TestSessionBuilder sessionBuilder,
+    String userId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'accept',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'accept',
+          parameters: _i1.testObjectToJson({'userId': userId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i6.FriendConnectionDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> decline(
+    _i1.TestSessionBuilder sessionBuilder,
+    String userId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'decline',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'decline',
+          parameters: _i1.testObjectToJson({'userId': userId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> remove(
+    _i1.TestSessionBuilder sessionBuilder,
+    String userId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'remove',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'remove',
+          parameters: _i1.testObjectToJson({'userId': userId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i6.FriendConnectionDto> setSharing(
+    _i1.TestSessionBuilder sessionBuilder,
+    String userId, {
+    required bool stats,
+    required bool history,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'setSharing',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'setSharing',
+          parameters: _i1.testObjectToJson({
+            'userId': userId,
+            'stats': stats,
+            'history': history,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i6.FriendConnectionDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i7.ProgressOverviewDto> getProgress(
+    _i1.TestSessionBuilder sessionBuilder,
+    String userId, {
+    required String period,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'getProgress',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'getProgress',
+          parameters: _i1.testObjectToJson({
+            'userId': userId,
+            'period': period,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i7.ProgressOverviewDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i8.WorkoutRecordDto>> getHistory(
+    _i1.TestSessionBuilder sessionBuilder,
+    String userId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'friends',
+            method: 'getHistory',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'friends',
+          methodName: 'getHistory',
+          parameters: _i1.testObjectToJson({'userId': userId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i8.WorkoutRecordDto>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -278,7 +590,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i5.Greeting> hello(
+  _i3.Future<_i9.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -301,7 +613,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i5.Greeting>);
+                as _i3.Future<_i9.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -320,7 +632,7 @@ class _WorkoutHistoryEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i6.WorkoutRecordDto>> list(
+  _i3.Future<List<_i8.WorkoutRecordDto>> list(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -342,7 +654,7 @@ class _WorkoutHistoryEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i6.WorkoutRecordDto>>);
+                as _i3.Future<List<_i8.WorkoutRecordDto>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -350,9 +662,9 @@ class _WorkoutHistoryEndpoint {
     });
   }
 
-  _i3.Future<_i6.WorkoutRecordDto> save(
+  _i3.Future<_i8.WorkoutRecordDto> save(
     _i1.TestSessionBuilder sessionBuilder,
-    _i6.WorkoutRecordDto record,
+    _i8.WorkoutRecordDto record,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -373,7 +685,7 @@ class _WorkoutHistoryEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.WorkoutRecordDto>);
+                as _i3.Future<_i8.WorkoutRecordDto>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -438,7 +750,7 @@ class _TrainingScheduleEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i8.TrainingScheduleDto?> get(
+  _i3.Future<_i10.TrainingScheduleDto?> get(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -460,7 +772,7 @@ class _TrainingScheduleEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.TrainingScheduleDto?>);
+                as _i3.Future<_i10.TrainingScheduleDto?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -468,9 +780,9 @@ class _TrainingScheduleEndpoint {
     });
   }
 
-  _i3.Future<_i8.TrainingScheduleDto> save(
+  _i3.Future<_i10.TrainingScheduleDto> save(
     _i1.TestSessionBuilder sessionBuilder,
-    _i8.TrainingScheduleDto schedule,
+    _i10.TrainingScheduleDto schedule,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -491,7 +803,7 @@ class _TrainingScheduleEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.TrainingScheduleDto>);
+                as _i3.Future<_i10.TrainingScheduleDto>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

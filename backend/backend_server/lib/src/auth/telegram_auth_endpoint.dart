@@ -6,7 +6,15 @@ import 'telegram_auth_service.dart';
 class TelegramAuthEndpoint extends Endpoint {
   final TelegramAuthService _service = TelegramAuthService();
 
-  Future<AuthSuccess> authenticate(Session session, String initData) {
-    return _service.authenticate(session, initData);
+  Future<AuthSuccess> authenticate(
+    Session session,
+    String initData, {
+    int? utcOffsetMinutes,
+  }) {
+    return _service.authenticate(
+      session,
+      initData,
+      utcOffsetMinutes: utcOffsetMinutes,
+    );
   }
 }

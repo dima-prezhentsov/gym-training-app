@@ -1,0 +1,4 @@
+class: FriendInviteDto
+fields:
+  code: String
+  expiresAt: DateTime
