@@ -89,6 +89,23 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(find.text('Расчётный 1ПМ по тренировкам'), findsOneWidget);
+    expect(find.text('Расчётный 1ПМ, кг'), findsOneWidget);
+    expect(find.text('Дата тренировки'), findsOneWidget);
+
+    final volumeChip = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'Объём'),
+    );
+    volumeChip.onSelected!(true);
+    await tester.pumpAndSettle();
+    expect(find.text('Объём по тренировкам'), findsOneWidget);
+    expect(find.text('Объём, кг'), findsOneWidget);
+    expect(
+      find.text(
+        'Примерный максимальный вес на одно повторение, рассчитанный по лучшему подходу.',
+      ),
+      findsNothing,
+    );
     expect(find.byKey(const ValueKey('progress-streak-card')), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('progress-history-tab')));

@@ -40,6 +40,7 @@ dependencies:
   go_router: ^17.5.0
   serverpod_auth_core_flutter: 3.4.13
   serverpod_flutter: 3.4.13
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:

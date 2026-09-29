@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -464,9 +465,26 @@ class _ProgressChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final values = points.map((point) => point.valueFor(metric)).toList();
+    final spots = List.generate(
+      values.length,
+      (index) => FlSpot(index.toDouble(), values[index]),
+    );
     final latest = values.last;
     final first = values.first;
     final delta = first == 0 ? 0.0 : (latest - first) / first * 100;
+    final minValue = values.reduce(math.min);
+    final maxValue = values.reduce(math.max);
+    final padding = math.max(
+      math.max((maxValue - minValue) * 0.12, maxValue.abs() * 0.08),
+      1,
+    );
+    final minY = math.max(0, minValue - padding).toDouble();
+    final maxY = maxValue + padding;
+    final yInterval = (maxY - minY) / 3;
+    final labelIndexes = {0, (points.length - 1) ~/ 2, points.length - 1};
+    final axisStyle = Theme.of(
+      context,
+    ).textTheme.labelSmall?.copyWith(color: AppColors.textSecondary);
     return Semantics(
       label:
           '${metric.label}: последнее значение ${_formatMetric(latest, metric)}, изменение ${delta.toStringAsFixed(0)} процентов',
@@ -492,76 +510,128 @@ class _ProgressChart extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 6),
+          Text(
+            '${metric.label} по тренировкам',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: 14),
           SizedBox(
-            height: 156,
-            child: CustomPaint(
-              painter: _ProgressChartPainter(values: values),
-              child: const SizedBox.expand(),
+            height: 230,
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: math.max(1, points.length - 1).toDouble(),
+                minY: minY,
+                maxY: maxY,
+                gridData: FlGridData(
+                  drawVerticalLine: false,
+                  horizontalInterval: yInterval,
+                  getDrawingHorizontalLine: (_) =>
+                      const FlLine(color: AppColors.outline, strokeWidth: 1),
+                ),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: AxisTitles(
+                    axisNameWidget: Text(
+                      _metricAxisLabel(metric),
+                      style: axisStyle,
+                    ),
+                    axisNameSize: 22,
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 48,
+                      interval: yInterval,
+                      getTitlesWidget: (value, meta) => SideTitleWidget(
+                        meta: meta,
+                        space: 8,
+                        child: Text(_formatAxisValue(value), style: axisStyle),
+                      ),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    axisNameWidget: Text('Дата тренировки', style: axisStyle),
+                    axisNameSize: 24,
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.round();
+                        if (index < 0 ||
+                            index >= points.length ||
+                            !labelIndexes.contains(index)) {
+                          return const SizedBox.shrink();
+                        }
+                        return SideTitleWidget(
+                          meta: meta,
+                          space: 8,
+                          child: Text(
+                            _shortDate(points[index].date),
+                            style: axisStyle,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => AppColors.surfaceRaised,
+                    tooltipBorder: const BorderSide(color: AppColors.outline),
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    getTooltipItems: (touchedSpots) => touchedSpots
+                        .map((spot) {
+                          final index = spot.x.round();
+                          return LineTooltipItem(
+                            '${_shortDate(points[index].date)}\n${_formatMetric(spot.y, metric)}',
+                            const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          );
+                        })
+                        .toList(growable: false),
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    color: AppColors.lime,
+                    barWidth: 3,
+                    isCurved: points.length > 2,
+                    preventCurveOverShooting: true,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: true),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.lime.withValues(alpha: 0.22),
+                          AppColors.lime.withValues(alpha: 0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(_shortDate(points.first.date)),
-              Text(_shortDate(points.last.date)),
-            ],
           ),
         ],
       ),
     );
   }
-}
-
-class _ProgressChartPainter extends CustomPainter {
-  const _ProgressChartPainter({required this.values});
-
-  final List<double> values;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final gridPaint = Paint()
-      ..color = AppColors.outline
-      ..strokeWidth = 1;
-    for (var index = 0; index < 4; index++) {
-      final y = size.height * index / 3;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
-
-    final minValue = values.reduce(math.min);
-    final maxValue = values.reduce(math.max);
-    final range = math.max(maxValue - minValue, 1).toDouble();
-    final points = List.generate(values.length, (index) {
-      final x = values.length == 1
-          ? size.width / 2
-          : size.width * index / (values.length - 1);
-      final normalized = (values[index] - minValue) / range;
-      return Offset(x, size.height - 10 - normalized * (size.height - 20));
-    });
-    final linePaint = Paint()
-      ..color = AppColors.lime
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    final path = Path()..moveTo(points.first.dx, points.first.dy);
-    for (final point in points.skip(1)) {
-      path.lineTo(point.dx, point.dy);
-    }
-    canvas.drawPath(path, linePaint);
-
-    final dotPaint = Paint()..color = AppColors.lime;
-    final innerPaint = Paint()..color = AppColors.background;
-    for (final point in points) {
-      canvas
-        ..drawCircle(point, 5, dotPaint)
-        ..drawCircle(point, 2, innerPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProgressChartPainter oldDelegate) =>
-      oldDelegate.values != values;
 }
 
 class _PersonalRecordsCard extends StatelessWidget {
@@ -739,6 +809,20 @@ class _ProgressError extends StatelessWidget {
 String _formatMetric(double value, ExerciseProgressMetric metric) {
   final suffix = metric == ExerciseProgressMetric.volume ? 'кг объёма' : 'кг';
   return '${_formatNumber(value)} $suffix';
+}
+
+String _metricAxisLabel(ExerciseProgressMetric metric) => switch (metric) {
+  ExerciseProgressMetric.estimatedMax => 'Расчётный 1ПМ, кг',
+  ExerciseProgressMetric.maxWeight => 'Макс. вес, кг',
+  ExerciseProgressMetric.volume => 'Объём, кг',
+};
+
+String _formatAxisValue(double value) {
+  if (value.abs() >= 1000) {
+    final thousands = value / 1000;
+    return '${thousands.toStringAsFixed(thousands >= 10 ? 0 : 1)} тыс.';
+  }
+  return _formatNumber(value);
 }
 
 String _formatNumber(double value) => value == value.roundToDouble()
