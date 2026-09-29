@@ -26,6 +26,14 @@ abstract final class AppTheme {
     );
 
     return base.copyWith(
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return scheme.primary;
+          }
+          return scheme.onSurface;
+        }),
+      ),
       textTheme: base.textTheme.copyWith(
         displaySmall: const TextStyle(
           color: AppColors.textPrimary,
