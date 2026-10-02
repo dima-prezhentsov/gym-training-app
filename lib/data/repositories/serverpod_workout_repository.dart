@@ -1,5 +1,6 @@
 import 'package:backend_client/backend_client.dart' as api;
 
+import '../../domain/models/active_workout.dart';
 import '../../domain/models/exercise_record.dart';
 import '../../domain/models/muscle_group.dart';
 import '../../domain/models/set_record.dart';
@@ -17,6 +18,42 @@ class ServerpodWorkoutRepository implements WorkoutRepository {
     final client = await _authenticatedClient();
     final records = await client.workoutHistory.list();
     return records.map(workoutRecordFromDto).toList(growable: false);
+  }
+
+  @override
+  Future<ActiveWorkout?> loadDraft() async {
+    final client = await _authenticatedClient();
+    final dto = await client.workoutHistory.loadDraft();
+    if (dto == null) return null;
+    return ActiveWorkout(
+      trainingDayId: dto.trainingDayId,
+      title: dto.title,
+      startedAt: dto.startedAt.toLocal(),
+      exercises: workoutRecordFromDto(dto).exercises,
+    );
+  }
+
+  @override
+  Future<void> saveDraft(ActiveWorkout workout) async {
+    final client = await _authenticatedClient();
+    await client.workoutHistory.saveDraft(
+      workoutRecordToDto(
+        WorkoutRecord(
+          id: 'workout-${workout.startedAt.microsecondsSinceEpoch}',
+          trainingDayId: workout.trainingDayId,
+          title: workout.title,
+          startedAt: workout.startedAt,
+          completedAt: workout.startedAt,
+          exercises: workout.exercises,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<void> touchDraft() async {
+    final client = await _authenticatedClient();
+    await client.workoutHistory.touchDraft();
   }
 
   @override

@@ -22,8 +22,11 @@ abstract class FriendConnectionDto implements _i1.SerializableModel {
     required this.isIncoming,
     required this.sharesStats,
     required this.sharesHistory,
+    required this.sharesActivity,
     required this.canViewStats,
     required this.canViewHistory,
+    required this.canViewActivity,
+    required this.isTraining,
   });
 
   factory FriendConnectionDto({
@@ -34,8 +37,11 @@ abstract class FriendConnectionDto implements _i1.SerializableModel {
     required bool isIncoming,
     required bool sharesStats,
     required bool sharesHistory,
+    required bool sharesActivity,
     required bool canViewStats,
     required bool canViewHistory,
+    required bool canViewActivity,
+    required bool isTraining,
   }) = _FriendConnectionDtoImpl;
 
   factory FriendConnectionDto.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -53,11 +59,20 @@ abstract class FriendConnectionDto implements _i1.SerializableModel {
       sharesHistory: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['sharesHistory'],
       ),
+      sharesActivity: _i1.BoolJsonExtension.fromJson(
+        jsonSerialization['sharesActivity'],
+      ),
       canViewStats: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['canViewStats'],
       ),
       canViewHistory: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['canViewHistory'],
+      ),
+      canViewActivity: _i1.BoolJsonExtension.fromJson(
+        jsonSerialization['canViewActivity'],
+      ),
+      isTraining: _i1.BoolJsonExtension.fromJson(
+        jsonSerialization['isTraining'],
       ),
     );
   }
@@ -76,9 +91,15 @@ abstract class FriendConnectionDto implements _i1.SerializableModel {
 
   bool sharesHistory;
 
+  bool sharesActivity;
+
   bool canViewStats;
 
   bool canViewHistory;
+
+  bool canViewActivity;
+
+  bool isTraining;
 
   /// Returns a shallow copy of this [FriendConnectionDto]
   /// with some or all fields replaced by the given arguments.
@@ -91,8 +112,11 @@ abstract class FriendConnectionDto implements _i1.SerializableModel {
     bool? isIncoming,
     bool? sharesStats,
     bool? sharesHistory,
+    bool? sharesActivity,
     bool? canViewStats,
     bool? canViewHistory,
+    bool? canViewActivity,
+    bool? isTraining,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -105,8 +129,11 @@ abstract class FriendConnectionDto implements _i1.SerializableModel {
       'isIncoming': isIncoming,
       'sharesStats': sharesStats,
       'sharesHistory': sharesHistory,
+      'sharesActivity': sharesActivity,
       'canViewStats': canViewStats,
       'canViewHistory': canViewHistory,
+      'canViewActivity': canViewActivity,
+      'isTraining': isTraining,
     };
   }
 
@@ -127,8 +154,11 @@ class _FriendConnectionDtoImpl extends FriendConnectionDto {
     required bool isIncoming,
     required bool sharesStats,
     required bool sharesHistory,
+    required bool sharesActivity,
     required bool canViewStats,
     required bool canViewHistory,
+    required bool canViewActivity,
+    required bool isTraining,
   }) : super._(
          userId: userId,
          displayName: displayName,
@@ -137,8 +167,11 @@ class _FriendConnectionDtoImpl extends FriendConnectionDto {
          isIncoming: isIncoming,
          sharesStats: sharesStats,
          sharesHistory: sharesHistory,
+         sharesActivity: sharesActivity,
          canViewStats: canViewStats,
          canViewHistory: canViewHistory,
+         canViewActivity: canViewActivity,
+         isTraining: isTraining,
        );
 
   /// Returns a shallow copy of this [FriendConnectionDto]
@@ -153,8 +186,11 @@ class _FriendConnectionDtoImpl extends FriendConnectionDto {
     bool? isIncoming,
     bool? sharesStats,
     bool? sharesHistory,
+    bool? sharesActivity,
     bool? canViewStats,
     bool? canViewHistory,
+    bool? canViewActivity,
+    bool? isTraining,
   }) {
     return FriendConnectionDto(
       userId: userId ?? this.userId,
@@ -164,8 +200,11 @@ class _FriendConnectionDtoImpl extends FriendConnectionDto {
       isIncoming: isIncoming ?? this.isIncoming,
       sharesStats: sharesStats ?? this.sharesStats,
       sharesHistory: sharesHistory ?? this.sharesHistory,
+      sharesActivity: sharesActivity ?? this.sharesActivity,
       canViewStats: canViewStats ?? this.canViewStats,
       canViewHistory: canViewHistory ?? this.canViewHistory,
+      canViewActivity: canViewActivity ?? this.canViewActivity,
+      isTraining: isTraining ?? this.isTraining,
     );
   }
 }

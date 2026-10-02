@@ -5,6 +5,7 @@ import 'package:gym_training_app/data/repositories/progress_calculator.dart';
 import 'package:gym_training_app/data/repositories/serverpod_progress_repository.dart';
 import 'package:gym_training_app/data/repositories/training_schedule_repository.dart';
 import 'package:gym_training_app/data/repositories/workout_repository.dart';
+import 'package:gym_training_app/domain/models/active_workout.dart';
 import 'package:gym_training_app/domain/models/exercise.dart';
 import 'package:gym_training_app/domain/models/exercise_record.dart';
 import 'package:gym_training_app/domain/models/muscle_group.dart';
@@ -69,7 +70,7 @@ void main() {
     expect(overview.personalRecords.single.weightKg, 70);
   });
 
-  test('counts an ongoing schedule streak in calendar days', () {
+  test('counts only completed scheduled training days in a streak', () {
     final overview = calculateProgressOverview(
       schedule: schedule,
       history: [
@@ -82,8 +83,8 @@ void main() {
       now: DateTime(2026, 10, 9),
     );
 
-    expect(overview.currentStreakDays, 12);
-    expect(overview.bestStreakDays, 12);
+    expect(overview.currentStreakDays, 4);
+    expect(overview.bestStreakDays, 4);
   });
 
   test('resets the schedule streak after a missed training day', () {
@@ -98,8 +99,8 @@ void main() {
       now: DateTime(2026, 10, 9),
     );
 
-    expect(overview.currentStreakDays, 5);
-    expect(overview.bestStreakDays, 5);
+    expect(overview.currentStreakDays, 2);
+    expect(overview.bestStreakDays, 2);
   });
 
   test('filters period statistics without changing the all-time streak', () {
@@ -197,32 +198,40 @@ void main() {
   });
 
   test('maps server aggregate without requesting raw history', () {
-    final mapped = progressOverviewFromDto(api.ProgressOverviewDto(
-      currentStreakDays: 3,
-      bestStreakDays: 5,
-      workoutCount: 1,
-      totalMinutes: 60,
-      totalSets: 2,
-      exercises: [api.ExerciseProgressDto(
-        exerciseId: 'bench',
-        name: 'Жим штанги',
-        points: [api.ExerciseProgressPointDto(
-          date: DateTime.utc(2026, 10, 5),
-          estimatedMaxKg: 80,
-          maxWeightKg: 60,
-          volumeKg: 1200,
-        )],
-      )],
-      muscleGroups: [api.MuscleGroupProgressDto(group: 'chest', setCount: 2)],
-      personalRecords: [api.PersonalRecordDto(
-        exerciseId: 'bench',
-        exerciseName: 'Жим штанги',
-        weightKg: 60,
-        repetitions: 10,
-        estimatedMaxKg: 80,
-        achievedAt: DateTime.utc(2026, 10, 5),
-      )],
-    ));
+    final mapped = progressOverviewFromDto(
+      api.ProgressOverviewDto(
+        currentStreakDays: 3,
+        bestStreakDays: 5,
+        workoutCount: 1,
+        totalMinutes: 60,
+        totalSets: 2,
+        exercises: [
+          api.ExerciseProgressDto(
+            exerciseId: 'bench',
+            name: 'Жим штанги',
+            points: [
+              api.ExerciseProgressPointDto(
+                date: DateTime.utc(2026, 10, 5),
+                estimatedMaxKg: 80,
+                maxWeightKg: 60,
+                volumeKg: 1200,
+              ),
+            ],
+          ),
+        ],
+        muscleGroups: [api.MuscleGroupProgressDto(group: 'chest', setCount: 2)],
+        personalRecords: [
+          api.PersonalRecordDto(
+            exerciseId: 'bench',
+            exerciseName: 'Жим штанги',
+            weightKg: 60,
+            repetitions: 10,
+            estimatedMaxKg: 80,
+            achievedAt: DateTime.utc(2026, 10, 5),
+          ),
+        ],
+      ),
+    );
     expect(mapped.currentStreakDays, 3);
     expect(mapped.exercises.single.name, 'Жим штанги');
     expect(mapped.muscleGroups.single.group, MuscleGroup.chest);
@@ -284,6 +293,15 @@ class _WorkoutRepository implements WorkoutRepository {
 
   @override
   Future<List<WorkoutRecord>> loadHistory() async => history;
+
+  @override
+  Future<ActiveWorkout?> loadDraft() async => null;
+
+  @override
+  Future<void> saveDraft(ActiveWorkout workout) async {}
+
+  @override
+  Future<void> touchDraft() async {}
 
   @override
   Future<void> save(WorkoutRecord record) async {}

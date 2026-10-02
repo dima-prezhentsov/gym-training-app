@@ -16,6 +16,9 @@ greeting:
   - hello:
 workoutHistory:
   - list:
+  - loadDraft:
+  - saveDraft:
+  - touchDraft:
   - save:
 progress:
   - get:

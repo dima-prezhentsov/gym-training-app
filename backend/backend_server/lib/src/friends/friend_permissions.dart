@@ -10,3 +10,7 @@ bool canViewFriendStats(FriendshipEntity friendship, bool viewerIsA) =>
 bool canViewFriendHistory(FriendshipEntity friendship, bool viewerIsA) =>
     isAcceptedFriend(friendship) &&
     (viewerIsA ? friendship.bSharesHistory : friendship.aSharesHistory);
+
+bool canViewFriendActivity(FriendshipEntity friendship, bool viewerIsA) =>
+    isAcceptedFriend(friendship) &&
+    (viewerIsA ? friendship.bSharesActivity : friendship.aSharesActivity);

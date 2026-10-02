@@ -19,11 +19,38 @@ class WorkoutViewModel extends ChangeNotifier {
   List<WorkoutRecord> _history = const [];
   ActiveWorkout? _activeWorkout;
   String? _errorMessage;
+  bool _isFinishing = false;
+  bool _isRestoringDraft = false;
+  Future<void> _draftWrite = Future<void>.value();
+  int _draftRevision = 0;
 
   WorkoutHistoryStatus get historyStatus => _historyStatus;
   List<WorkoutRecord> get history => _history;
   ActiveWorkout? get activeWorkout => _activeWorkout;
   String? get errorMessage => _errorMessage;
+  bool get isFinishing => _isFinishing;
+  bool get isRestoringDraft => _isRestoringDraft;
+
+  Future<void> initialize() async {
+    _isRestoringDraft = true;
+    notifyListeners();
+    await Future.wait([loadHistory(), _restoreDraft()]);
+  }
+
+  Future<void> _restoreDraft() async {
+    final revision = _draftRevision;
+    try {
+      final draft = await _repository.loadDraft();
+      if (revision == _draftRevision && _activeWorkout == null) {
+        _activeWorkout = draft;
+      }
+    } on Object {
+      _errorMessage = 'Не удалось восстановить активную тренировку';
+    } finally {
+      _isRestoringDraft = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> loadHistory() async {
     _historyStatus = WorkoutHistoryStatus.loading;
@@ -41,7 +68,7 @@ class WorkoutViewModel extends ChangeNotifier {
   }
 
   void startWorkout(TrainingDay day, {DateTime? startedAt}) {
-    if (_activeWorkout != null) return;
+    if (_activeWorkout != null || _isRestoringDraft) return;
 
     _activeWorkout = ActiveWorkout(
       trainingDayId: day.id,
@@ -57,6 +84,8 @@ class WorkoutViewModel extends ChangeNotifier {
         ),
       ),
     );
+    _draftRevision++;
+    _persistDraft();
     notifyListeners();
   }
 
@@ -87,6 +116,7 @@ class WorkoutViewModel extends ChangeNotifier {
       );
     }).toList();
     _activeWorkout = active.copyWith(exercises: exercises);
+    _persistDraft();
     notifyListeners();
   }
 
@@ -108,16 +138,48 @@ class WorkoutViewModel extends ChangeNotifier {
       );
     }).toList();
     _activeWorkout = active.copyWith(exercises: exercises);
+    _persistDraft();
     notifyListeners();
+  }
+
+  void _persistDraft() {
+    final draft = _activeWorkout;
+    if (draft == null) return;
+    _draftWrite = _draftWrite
+        .then((_) async {
+          await _repository.saveDraft(draft);
+          if (_errorMessage == 'Не удалось сохранить промежуточный прогресс') {
+            _errorMessage = null;
+            notifyListeners();
+          }
+        })
+        .onError((Object error, StackTrace stackTrace) {
+          _errorMessage = 'Не удалось сохранить промежуточный прогресс';
+          notifyListeners();
+        });
+  }
+
+  void retryDraftSave() => _persistDraft();
+
+  Future<void> touchActivity() async {
+    if (_activeWorkout == null) return;
+    await _draftWrite;
+    try {
+      await _repository.touchDraft();
+    } on Object {
+      // The next draft write or heartbeat will retry presence.
+    }
   }
 
   Future<WorkoutRecord?> finishWorkout({DateTime? completedAt}) async {
     final active = _activeWorkout;
-    if (active == null || active.totalSets == 0) return null;
+    if (_isFinishing || active == null || active.totalSets == 0) return null;
+    _isFinishing = true;
+    notifyListeners();
 
     final completionTime = completedAt ?? DateTime.now();
     final record = WorkoutRecord(
-      id: 'workout-${completionTime.microsecondsSinceEpoch}',
+      id: 'workout-${active.startedAt.microsecondsSinceEpoch}',
       trainingDayId: active.trainingDayId,
       title: active.title,
       startedAt: active.startedAt,
@@ -127,18 +189,23 @@ class WorkoutViewModel extends ChangeNotifier {
 
     _errorMessage = null;
     try {
+      await _draftWrite;
       await _repository.save(record);
       final history = [record, ..._history]
         ..sort((left, right) => right.completedAt.compareTo(left.completedAt));
       _history = List.unmodifiable(history);
       _historyStatus = WorkoutHistoryStatus.ready;
       _activeWorkout = null;
+      _draftRevision++;
       notifyListeners();
       return record;
     } on Object {
       _errorMessage = 'Не удалось сохранить тренировку';
       notifyListeners();
       return null;
+    } finally {
+      _isFinishing = false;
+      notifyListeners();
     }
   }
 }

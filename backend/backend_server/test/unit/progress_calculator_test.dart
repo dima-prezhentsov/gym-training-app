@@ -42,7 +42,7 @@ void main() {
     expect(overview.workoutCount, 3);
     expect(overview.totalMinutes, 180);
     expect(overview.totalSets, 3);
-    expect(overview.currentStreakDays, 5);
+    expect(overview.currentStreakDays, 2);
     expect(overview.exercises, hasLength(2));
     expect(
       overview.exercises.firstWhere((e) => e.exerciseId == 'bench').name,

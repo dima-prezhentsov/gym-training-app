@@ -32,7 +32,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      setState(() {});
+      if (DateTime.now().second == 0) {
+        unawaited(context.read<WorkoutViewModel>().touchActivity());
+      }
     });
   }
 
@@ -53,6 +57,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         workout: active,
         isDifferentDay: active.trainingDayId != widget.trainingDayId,
       );
+    }
+
+    if (workoutViewModel.isRestoringDraft) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (scheduleViewModel.isLoading) {
@@ -100,14 +108,23 @@ TrainingDay? _findDay(ScheduleViewModel viewModel, String dayId) {
   return null;
 }
 
-class _WorkoutContent extends StatelessWidget {
+class _WorkoutContent extends StatefulWidget {
   const _WorkoutContent({required this.workout, required this.isDifferentDay});
 
   final ActiveWorkout workout;
   final bool isDifferentDay;
 
   @override
+  State<_WorkoutContent> createState() => _WorkoutContentState();
+}
+
+class _WorkoutContentState extends State<_WorkoutContent> {
+  bool _finishing = false;
+
+  @override
   Widget build(BuildContext context) {
+    final workout = widget.workout;
+    final isDifferentDay = widget.isDifferentDay;
     final elapsed = DateTime.now().difference(workout.startedAt);
 
     return Scaffold(
@@ -171,16 +188,29 @@ class _WorkoutContent extends StatelessWidget {
                   const SizedBox(height: 24),
                   FilledButton.icon(
                     key: const ValueKey('finish-workout-button'),
-                    onPressed: () => _finishWorkout(context, workout),
+                    onPressed:
+                        _finishing ||
+                            context.watch<WorkoutViewModel>().isFinishing
+                        ? null
+                        : () => _finishWorkout(context, workout),
                     icon: const Icon(Icons.check_rounded),
                     label: const Text('Завершить тренировку'),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Можно выйти: прогресс сохранится до перезапуска приложения.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                  if (context.watch<WorkoutViewModel>().errorMessage ==
+                      'Не удалось сохранить промежуточный прогресс')
+                    TextButton.icon(
+                      onPressed: () =>
+                          context.read<WorkoutViewModel>().retryDraftSave(),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('Повторить сохранение подходов'),
+                    )
+                  else
+                    Text(
+                      'Подходы сохраняются автоматически. К тренировке можно вернуться позже.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                 ],
               ),
             ),
@@ -194,6 +224,7 @@ class _WorkoutContent extends StatelessWidget {
     BuildContext context,
     ActiveWorkout workout,
   ) async {
+    if (_finishing) return;
     if (workout.totalSets == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Добавьте хотя бы один подход')),
@@ -201,41 +232,46 @@ class _WorkoutContent extends StatelessWidget {
       return;
     }
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Завершить тренировку?'),
-        content: Text(
-          'Будет сохранено: ${_setsLabel(workout.totalSets)}. '
-          'После завершения изменить запись будет нельзя.',
+    setState(() => _finishing = true);
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Сохранить тренировку?'),
+          content: Text(
+            'Будет сохранено: ${_setsLabel(workout.totalSets)}. '
+            'После завершения изменить запись будет нельзя.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Продолжить тренировку'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Сохранить тренировку'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Продолжить'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Завершить'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-
-    final record = await context.read<WorkoutViewModel>().finishWorkout();
-    if (!context.mounted) return;
-    if (record == null) {
-      final message = context.read<WorkoutViewModel>().errorMessage;
-      showAppErrorSnackBar(
-        context,
-        message ?? 'Не удалось завершить тренировку',
       );
-      return;
+      if (confirmed != true || !context.mounted) return;
+
+      final record = await context.read<WorkoutViewModel>().finishWorkout();
+      if (!context.mounted) return;
+      if (record == null) {
+        final message = context.read<WorkoutViewModel>().errorMessage;
+        showAppErrorSnackBar(
+          context,
+          message ?? 'Не удалось завершить тренировку',
+        );
+        return;
+      }
+      unawaited(context.read<HomeViewModel>().loadOverview());
+      unawaited(context.read<ProgressViewModel>().load());
+      context.go('/history?section=history');
+    } finally {
+      if (mounted) setState(() => _finishing = false);
     }
-    unawaited(context.read<HomeViewModel>().loadOverview());
-    unawaited(context.read<ProgressViewModel>().load());
-    context.go('/history?section=history');
   }
 }
 

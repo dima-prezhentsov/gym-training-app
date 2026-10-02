@@ -20,7 +20,12 @@ void main() {
   test('share toggles do not grant access to pending requests', () async {
     final repository = InMemoryFriendsRepository();
     await expectLater(
-      repository.setSharing('demo-max', stats: true, history: true),
+      repository.setSharing(
+        'demo-max',
+        stats: true,
+        history: true,
+        activity: true,
+      ),
       throwsStateError,
     );
     await repository.accept('demo-max');
@@ -28,8 +33,10 @@ void main() {
       'demo-max',
       stats: true,
       history: false,
+      activity: true,
     );
     expect(updated.sharesStats, isTrue);
     expect(updated.sharesHistory, isFalse);
+    expect(updated.sharesActivity, isTrue);
   });
 }

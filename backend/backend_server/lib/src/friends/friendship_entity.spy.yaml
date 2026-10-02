@@ -10,8 +10,10 @@ fields:
   status: String
   aSharesStats: bool
   aSharesHistory: bool
+  aSharesActivity: bool, default=false
   bSharesStats: bool
   bSharesHistory: bool
+  bSharesActivity: bool, default=false
   createdAt: DateTime, defaultModel=now
   updatedAt: DateTime, defaultModel=now
 indexes:

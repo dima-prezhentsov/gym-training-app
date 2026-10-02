@@ -44,29 +44,23 @@ ProgressOverviewDto calculateProgress({
   var bestStreak = 0;
   if (scheduledWeekdays.isNotEmpty && completedDates.isNotEmpty) {
     var cursor = completedDates.reduce((a, b) => a.isBefore(b) ? a : b);
-    DateTime? runStart;
+    var runLength = 0;
     while (!cursor.isAfter(today)) {
       if (scheduledWeekdays.contains(cursor.weekday)) {
         final completed = completedDates.contains(cursor);
         final pendingToday = cursor == today && !completed;
         if (!pendingToday) {
           if (completed) {
-            runStart ??= cursor;
-            bestStreak = math.max(
-              bestStreak,
-              cursor.difference(runStart).inDays + 1,
-            );
+            runLength++;
+            bestStreak = math.max(bestStreak, runLength);
           } else {
-            runStart = null;
+            runLength = 0;
           }
         }
       }
       cursor = cursor.add(const Duration(days: 1));
     }
-    if (runStart != null) {
-      currentStreak = today.difference(runStart).inDays + 1;
-      bestStreak = math.max(bestStreak, currentStreak);
-    }
+    currentStreak = runLength;
   }
 
   final points = <String, List<ExerciseProgressPointDto>>{};

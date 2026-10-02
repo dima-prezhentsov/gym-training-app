@@ -99,7 +99,7 @@ class GymTrainingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) =>
-              WorkoutViewModel(repository: workoutRepository)..loadHistory(),
+              WorkoutViewModel(repository: workoutRepository)..initialize(),
         ),
         ChangeNotifierProvider(
           create: (_) =>

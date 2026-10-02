@@ -40,7 +40,7 @@ TrainingOverview buildTrainingOverview({
     );
   }, growable: false);
 
-  final next = _findNextTraining(schedule, today);
+  final next = _findNextTraining(schedule, history, today);
   return TrainingOverview(
     scheduleName: schedule.name,
     days: days,
@@ -58,11 +58,23 @@ TrainingOverview buildTrainingOverview({
   );
 }
 
-_NextTraining? _findNextTraining(TrainingSchedule schedule, DateTime today) {
-  for (var daysUntil = 0; daysUntil < 7; daysUntil++) {
-    final weekday = today.add(Duration(days: daysUntil)).weekday;
+_NextTraining? _findNextTraining(
+  TrainingSchedule schedule,
+  List<WorkoutRecord> history,
+  DateTime today,
+) {
+  for (var daysUntil = 0; daysUntil <= 7; daysUntil++) {
+    final date = today.add(Duration(days: daysUntil));
+    final weekday = date.weekday;
     final matchingDays = schedule.days.where(
-      (day) => day.weekday.index + 1 == weekday,
+      (day) =>
+          day.weekday.index + 1 == weekday &&
+          !(daysUntil == 0 &&
+              history.any(
+                (record) =>
+                    record.trainingDayId == day.id &&
+                    _isSameDate(record.completedAt.toLocal(), date),
+              )),
     );
     if (matchingDays.isEmpty) continue;
 

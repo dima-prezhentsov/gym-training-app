@@ -13,6 +13,7 @@ abstract interface class FriendsRepository {
     String userId, {
     required bool stats,
     required bool history,
+    required bool activity,
   });
   Future<ProgressOverview> loadProgress(String userId, ProgressPeriod period);
   Future<List<WorkoutRecord>> loadHistory(String userId);

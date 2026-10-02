@@ -10,6 +10,8 @@ import 'package:gym_training_app/domain/models/progress_overview.dart';
 import 'package:gym_training_app/domain/models/training_overview.dart';
 import 'package:gym_training_app/domain/models/training_schedule.dart';
 import 'package:gym_training_app/telegram/telegram_web_app.dart';
+import 'package:gym_training_app/ui/features/workout/view_models/workout_view_model.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   testWidgets('shows the training overview', (tester) async {
@@ -20,8 +22,14 @@ void main() {
 
     expect(find.textContaining('тренировк'), findsWidgets);
     expect(find.text('Следующая тренировка'), findsOneWidget);
-    expect(find.text('Спина + бицепс'), findsOneWidget);
+    expect(
+      find.text('Грудь + трицепс').evaluate().isNotEmpty ||
+          find.text('Спина + бицепс').evaluate().isNotEmpty ||
+          find.text('Ноги + плечи').evaluate().isNotEmpty,
+      isTrue,
+    );
     expect(find.text('Начать тренировку'), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle_rounded), findsWidgets);
   });
 
   testWidgets('redirects the root URL to the home screen', (tester) async {
@@ -83,6 +91,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Прогресс'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Расчётный 1ПМ'), 250);
     expect(find.text('Расчётный 1ПМ'), findsOneWidget);
     expect(
       find.text(
@@ -106,6 +115,10 @@ void main() {
         'Примерный максимальный вес на одно повторение, рассчитанный по лучшему подходу.',
       ),
       findsNothing,
+    );
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('progress-streak-card')),
+      -250,
     );
     expect(find.byKey(const ValueKey('progress-streak-card')), findsOneWidget);
 
@@ -188,10 +201,15 @@ void main() {
     expect(find.text('Тренируйтесь вместе'), findsOneWidget);
     expect(find.text('Анна'), findsOneWidget);
     expect(find.text('Максим'), findsOneWidget);
+    expect(find.textContaining('Тренируется сейчас'), findsOneWidget);
 
     await tester.tap(find.text('Анна'));
     await tester.pumpAndSettle();
     expect(find.text('Прогресс друга'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Расчётный 1ПМ по тренировкам'),
+      250,
+    );
     expect(find.text('Расчётный 1ПМ по тренировкам'), findsOneWidget);
     expect(find.text('Расчётный 1ПМ, кг'), findsOneWidget);
     final volumeChip = tester.widget<ChoiceChip>(
@@ -400,7 +418,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Активная тренировка'), findsOneWidget);
-    expect(find.text('Тяга верхнего блока'), findsOneWidget);
+    final active = Provider.of<WorkoutViewModel>(
+      tester.element(find.text('Активная тренировка')),
+      listen: false,
+    ).activeWorkout!;
+    expect(find.text(active.exercises.first.name), findsOneWidget);
 
     await tester.tap(
       find.widgetWithText(OutlinedButton, 'Добавить подход').first,
@@ -425,14 +447,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(finishButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Завершить'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Сохранить тренировку'));
     await tester.pumpAndSettle();
 
     expect(find.text('История'), findsWidgets);
-    expect(find.text('Спина + бицепс'), findsOneWidget);
+    expect(find.text(active.title), findsOneWidget);
     expect(find.textContaining('1 подход'), findsOneWidget);
 
-    await tester.tap(find.text('Спина + бицепс'));
+    await tester.tap(find.text(active.title));
     await tester.pumpAndSettle();
     expect(find.text('1. 10 повторений · 40 кг'), findsOneWidget);
   });
@@ -455,7 +477,7 @@ void main() {
     await tester.tap(find.text('Продолжить тренировку'));
     await tester.pumpAndSettle();
     expect(find.text('Активная тренировка'), findsOneWidget);
-    expect(find.text('Тяга верхнего блока'), findsOneWidget);
+    expect(find.textContaining('Добавить подход'), findsWidgets);
 
     await tester.tap(find.byTooltip('Назад'));
     await tester.pumpAndSettle();

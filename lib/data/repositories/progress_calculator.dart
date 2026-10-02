@@ -169,8 +169,7 @@ _Streak _calculateStreak({
   var cursor = completedDates.reduce(
     (left, right) => left.isBefore(right) ? left : right,
   );
-  DateTime? currentRunStart;
-  DateTime? currentRunEnd;
+  var runLength = 0;
   var best = 0;
 
   while (!cursor.isAfter(today)) {
@@ -179,25 +178,17 @@ _Streak _calculateStreak({
       final pendingToday = _isSameDate(cursor, today) && !completed;
       if (!pendingToday) {
         if (completed) {
-          currentRunStart ??= cursor;
-          currentRunEnd = cursor;
-          best = math.max(
-            best,
-            currentRunEnd.difference(currentRunStart).inDays + 1,
-          );
+          runLength++;
+          best = math.max(best, runLength);
         } else {
-          currentRunStart = null;
-          currentRunEnd = null;
+          runLength = 0;
         }
       }
     }
     cursor = cursor.add(const Duration(days: 1));
   }
 
-  final current = currentRunStart == null
-      ? 0
-      : today.difference(currentRunStart).inDays + 1;
-  return _Streak(current: current, best: math.max(best, current));
+  return _Streak(current: runLength, best: best);
 }
 
 DateTime _dateOnly(DateTime value) =>

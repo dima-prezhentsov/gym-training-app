@@ -9,4 +9,7 @@ abstract final class TelegramWebApp {
   static TelegramLaunchData initialize() {
     return implementation.initializeTelegramWebApp();
   }
+
+  static bool shareLinkInTelegram(String link) =>
+      implementation.shareLinkInTelegram(link);
 }

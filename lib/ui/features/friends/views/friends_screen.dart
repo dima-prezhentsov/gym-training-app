@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../data/repositories/friend_error_message.dart';
 import '../../../../data/repositories/friends_repository.dart';
 import '../../../../domain/models/friend_connection.dart';
-import '../../../../telegram/telegram_launch_data.dart';
+import '../../../../telegram/telegram_web_app.dart';
 import '../../../core/utils/app_error_feedback.dart';
 
 class FriendsScreen extends StatefulWidget {
@@ -22,6 +25,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   String? _error;
   bool _busy = false;
   bool _inviteRedeemed = false;
+  FriendInvite? _invite;
+  Timer? _refreshTimer;
 
   String? get _launchCode {
     if (_inviteRedeemed) return null;
@@ -35,6 +40,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
   void initState() {
     super.initState();
     Future.microtask(_load);
+    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) => _load());
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -47,8 +59,18 @@ class _FriendsScreenState extends State<FriendsScreen> {
       if (!mounted) return;
       final connections = await context.read<FriendsRepository>().list();
       if (mounted) setState(() => _connections = connections);
+      if (_invite == null) unawaited(_loadInvite());
     } on Object {
       if (mounted) setState(() => _error = 'Не удалось загрузить друзей');
+    }
+  }
+
+  Future<void> _loadInvite() async {
+    try {
+      final invite = await context.read<FriendsRepository>().createInvite();
+      if (mounted) setState(() => _invite = invite);
+    } on Object {
+      // The friends list remains usable when inviting is unavailable.
     }
   }
 
@@ -72,34 +94,48 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 
   Future<void> _shareInvite() async {
-    await _action(() async {
-      final invite = await context.read<FriendsRepository>().createInvite();
+    final invite = _invite;
+    if (invite == null || _busy) return;
+    var invitation = invite.code;
+    setState(() => _busy = true);
+    try {
       const appLink = String.fromEnvironment('TELEGRAM_MINI_APP_LINK');
-      if (appLink.isEmpty) {
-        await Clipboard.setData(ClipboardData(text: invite.code));
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Код приглашения скопирован')),
-          );
-        }
+      invitation = appLink.isEmpty
+          ? 'Присоединяйся ко мне в LiftLog. Код приглашения: ${invite.code}'
+          : Uri.parse(appLink)
+                .replace(
+                  queryParameters: {
+                    ...Uri.parse(appLink).queryParameters,
+                    'startapp': 'invite_${invite.code}',
+                  },
+                )
+                .toString();
+      if (appLink.isNotEmpty &&
+          TelegramWebApp.shareLinkInTelegram(invitation)) {
         return;
       }
-      final uri = Uri.parse(appLink);
-      final link = uri
-          .replace(
-            queryParameters: {
-              ...uri.queryParameters,
-              'startapp': 'invite_${invite.code}',
-            },
-          )
-          .toString();
-      await Clipboard.setData(ClipboardData(text: link));
+      final box = context.findRenderObject() as RenderBox?;
+      await SharePlus.instance.share(
+        ShareParams(
+          text: invitation,
+          title: 'Приглашение в LiftLog',
+          sharePositionOrigin: box == null
+              ? null
+              : box.localToGlobal(Offset.zero) & box.size,
+        ),
+      );
+    } on Object {
+      await Clipboard.setData(ClipboardData(text: invitation));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ссылка-приглашение скопирована')),
+          const SnackBar(
+            content: Text('Не удалось открыть отправку. Код скопирован.'),
+          ),
         );
       }
-    });
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Future<void> _enterCode() async {
@@ -191,9 +227,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     ),
                   ),
                 FilledButton.icon(
-                  onPressed: _busy ? null : _shareInvite,
-                  icon: const Icon(Icons.link_rounded),
-                  label: const Text('Скопировать приглашение'),
+                  onPressed: _busy || _invite == null ? null : _shareInvite,
+                  icon: const Icon(Icons.ios_share_rounded),
+                  label: Text(
+                    _invite == null
+                        ? 'Подготовка приглашения…'
+                        : 'Пригласить друга',
+                  ),
                 ),
                 TextButton.icon(
                   onPressed: _busy ? null : _enterCode,
@@ -272,9 +312,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         ),
                         title: Text(friend.displayName),
                         subtitle: Text(
-                          friend.username == null
-                              ? 'Управление доступом и прогресс'
-                              : '@${friend.username}',
+                          [
+                            if (friend.username != null) '@${friend.username}',
+                            if (!friend.canViewActivity)
+                              'Статус скрыт'
+                            else if (friend.isTraining)
+                              'Тренируется сейчас'
+                            else
+                              'Не тренируется',
+                          ].join(' · '),
                         ),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () async {

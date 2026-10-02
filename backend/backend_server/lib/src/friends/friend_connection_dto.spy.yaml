@@ -7,5 +7,8 @@ fields:
   isIncoming: bool
   sharesStats: bool
   sharesHistory: bool
+  sharesActivity: bool
   canViewStats: bool
   canViewHistory: bool
+  canViewActivity: bool
+  isTraining: bool

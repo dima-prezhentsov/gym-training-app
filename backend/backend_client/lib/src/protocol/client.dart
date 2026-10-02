@@ -139,6 +139,7 @@ class EndpointFriends extends _i2.EndpointRef {
     String userId, {
     required bool stats,
     required bool history,
+    bool? activity,
   }) => caller.callServerEndpoint<_i5.FriendConnectionDto>(
     'friends',
     'setSharing',
@@ -146,6 +147,7 @@ class EndpointFriends extends _i2.EndpointRef {
       'userId': userId,
       'stats': stats,
       'history': history,
+      'activity': activity,
     },
   );
 
@@ -200,6 +202,26 @@ class EndpointWorkoutHistory extends _i2.EndpointRef {
         'list',
         {},
       );
+
+  _i3.Future<_i7.WorkoutRecordDto?> loadDraft() =>
+      caller.callServerEndpoint<_i7.WorkoutRecordDto?>(
+        'workoutHistory',
+        'loadDraft',
+        {},
+      );
+
+  _i3.Future<void> saveDraft(_i7.WorkoutRecordDto record) =>
+      caller.callServerEndpoint<void>(
+        'workoutHistory',
+        'saveDraft',
+        {'record': record},
+      );
+
+  _i3.Future<void> touchDraft() => caller.callServerEndpoint<void>(
+    'workoutHistory',
+    'touchDraft',
+    {},
+  );
 
   _i3.Future<_i7.WorkoutRecordDto> save(_i7.WorkoutRecordDto record) =>
       caller.callServerEndpoint<_i7.WorkoutRecordDto>(

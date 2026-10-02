@@ -29,11 +29,15 @@ abstract class FriendshipEntity
     required this.status,
     required this.aSharesStats,
     required this.aSharesHistory,
+    bool? aSharesActivity,
     required this.bSharesStats,
     required this.bSharesHistory,
+    bool? bSharesActivity,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) : createdAt = createdAt ?? DateTime.now(),
+  }) : aSharesActivity = aSharesActivity ?? false,
+       bSharesActivity = bSharesActivity ?? false,
+       createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
   factory FriendshipEntity({
@@ -46,8 +50,10 @@ abstract class FriendshipEntity
     required String status,
     required bool aSharesStats,
     required bool aSharesHistory,
+    bool? aSharesActivity,
     required bool bSharesStats,
     required bool bSharesHistory,
+    bool? bSharesActivity,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _FriendshipEntityImpl;
@@ -83,12 +89,22 @@ abstract class FriendshipEntity
       aSharesHistory: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['aSharesHistory'],
       ),
+      aSharesActivity: jsonSerialization['aSharesActivity'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['aSharesActivity'],
+            ),
       bSharesStats: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['bSharesStats'],
       ),
       bSharesHistory: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['bSharesHistory'],
       ),
+      bSharesActivity: jsonSerialization['bSharesActivity'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['bSharesActivity'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -121,9 +137,13 @@ abstract class FriendshipEntity
 
   bool aSharesHistory;
 
+  bool aSharesActivity;
+
   bool bSharesStats;
 
   bool bSharesHistory;
+
+  bool bSharesActivity;
 
   DateTime createdAt;
 
@@ -145,8 +165,10 @@ abstract class FriendshipEntity
     String? status,
     bool? aSharesStats,
     bool? aSharesHistory,
+    bool? aSharesActivity,
     bool? bSharesStats,
     bool? bSharesHistory,
+    bool? bSharesActivity,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -163,8 +185,10 @@ abstract class FriendshipEntity
       'status': status,
       'aSharesStats': aSharesStats,
       'aSharesHistory': aSharesHistory,
+      'aSharesActivity': aSharesActivity,
       'bSharesStats': bSharesStats,
       'bSharesHistory': bSharesHistory,
+      'bSharesActivity': bSharesActivity,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -224,8 +248,10 @@ class _FriendshipEntityImpl extends FriendshipEntity {
     required String status,
     required bool aSharesStats,
     required bool aSharesHistory,
+    bool? aSharesActivity,
     required bool bSharesStats,
     required bool bSharesHistory,
+    bool? bSharesActivity,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -238,8 +264,10 @@ class _FriendshipEntityImpl extends FriendshipEntity {
          status: status,
          aSharesStats: aSharesStats,
          aSharesHistory: aSharesHistory,
+         aSharesActivity: aSharesActivity,
          bSharesStats: bSharesStats,
          bSharesHistory: bSharesHistory,
+         bSharesActivity: bSharesActivity,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -258,8 +286,10 @@ class _FriendshipEntityImpl extends FriendshipEntity {
     String? status,
     bool? aSharesStats,
     bool? aSharesHistory,
+    bool? aSharesActivity,
     bool? bSharesStats,
     bool? bSharesHistory,
+    bool? bSharesActivity,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -273,8 +303,10 @@ class _FriendshipEntityImpl extends FriendshipEntity {
       status: status ?? this.status,
       aSharesStats: aSharesStats ?? this.aSharesStats,
       aSharesHistory: aSharesHistory ?? this.aSharesHistory,
+      aSharesActivity: aSharesActivity ?? this.aSharesActivity,
       bSharesStats: bSharesStats ?? this.bSharesStats,
       bSharesHistory: bSharesHistory ?? this.bSharesHistory,
+      bSharesActivity: bSharesActivity ?? this.bSharesActivity,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -319,6 +351,11 @@ class FriendshipEntityUpdateTable
     value,
   );
 
+  _i1.ColumnValue<bool, bool> aSharesActivity(bool value) => _i1.ColumnValue(
+    table.aSharesActivity,
+    value,
+  );
+
   _i1.ColumnValue<bool, bool> bSharesStats(bool value) => _i1.ColumnValue(
     table.bSharesStats,
     value,
@@ -326,6 +363,11 @@ class FriendshipEntityUpdateTable
 
   _i1.ColumnValue<bool, bool> bSharesHistory(bool value) => _i1.ColumnValue(
     table.bSharesHistory,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> bSharesActivity(bool value) => _i1.ColumnValue(
+    table.bSharesActivity,
     value,
   );
 
@@ -370,6 +412,11 @@ class FriendshipEntityTable extends _i1.Table<_i1.UuidValue?> {
       'aSharesHistory',
       this,
     );
+    aSharesActivity = _i1.ColumnBool(
+      'aSharesActivity',
+      this,
+      hasDefault: true,
+    );
     bSharesStats = _i1.ColumnBool(
       'bSharesStats',
       this,
@@ -377,6 +424,11 @@ class FriendshipEntityTable extends _i1.Table<_i1.UuidValue?> {
     bSharesHistory = _i1.ColumnBool(
       'bSharesHistory',
       this,
+    );
+    bSharesActivity = _i1.ColumnBool(
+      'bSharesActivity',
+      this,
+      hasDefault: true,
     );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
@@ -406,9 +458,13 @@ class FriendshipEntityTable extends _i1.Table<_i1.UuidValue?> {
 
   late final _i1.ColumnBool aSharesHistory;
 
+  late final _i1.ColumnBool aSharesActivity;
+
   late final _i1.ColumnBool bSharesStats;
 
   late final _i1.ColumnBool bSharesHistory;
+
+  late final _i1.ColumnBool bSharesActivity;
 
   late final _i1.ColumnDateTime createdAt;
 
@@ -449,8 +505,10 @@ class FriendshipEntityTable extends _i1.Table<_i1.UuidValue?> {
     status,
     aSharesStats,
     aSharesHistory,
+    aSharesActivity,
     bSharesStats,
     bSharesHistory,
+    bSharesActivity,
     createdAt,
     updatedAt,
   ];

@@ -53,11 +53,13 @@ class ServerpodFriendsRepository implements FriendsRepository {
     String userId, {
     required bool stats,
     required bool history,
+    required bool activity,
   }) async => _fromDto(
     await (await _client).friends.setSharing(
       userId,
       stats: stats,
       history: history,
+      activity: activity,
     ),
   );
 
@@ -83,7 +85,10 @@ class ServerpodFriendsRepository implements FriendsRepository {
     isIncoming: dto.isIncoming,
     sharesStats: dto.sharesStats,
     sharesHistory: dto.sharesHistory,
+    sharesActivity: dto.sharesActivity,
     canViewStats: dto.canViewStats,
     canViewHistory: dto.canViewHistory,
+    canViewActivity: dto.canViewActivity,
+    isTraining: dto.isTraining,
   );
 }

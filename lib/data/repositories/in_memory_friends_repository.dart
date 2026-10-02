@@ -24,6 +24,8 @@ class InMemoryFriendsRepository implements FriendsRepository {
       sharesHistory: false,
       canViewStats: true,
       canViewHistory: true,
+      canViewActivity: true,
+      isTraining: true,
     ),
     'demo-max': const FriendConnection(
       userId: 'demo-max',
@@ -97,12 +99,14 @@ class InMemoryFriendsRepository implements FriendsRepository {
     String userId, {
     required bool stats,
     required bool history,
+    required bool activity,
   }) async {
     final current = _require(userId);
     if (!current.isAccepted) throw StateError('notFriends');
     return _connections[userId] = current.copyWith(
       sharesStats: stats,
       sharesHistory: history,
+      sharesActivity: activity,
     );
   }
 

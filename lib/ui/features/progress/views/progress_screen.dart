@@ -300,7 +300,7 @@ class _StreakCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 const Text(
-                  'без пропуска тренировки по плану',
+                  'подряд по расписанию · дни отдыха не считаются',
                   style: TextStyle(
                     color: AppColors.background,
                     fontWeight: FontWeight.w600,
@@ -577,10 +577,10 @@ String _shortDate(DateTime date) =>
 
 String _daysLabel(int value) {
   final mod100 = value % 100;
-  if (mod100 >= 11 && mod100 <= 14) return 'дней';
+  if (mod100 >= 11 && mod100 <= 14) return 'тренировочных дней';
   return switch (value % 10) {
-    1 => 'день',
-    2 || 3 || 4 => 'дня',
-    _ => 'дней',
+    1 => 'тренировочный день',
+    2 || 3 || 4 => 'тренировочных дня',
+    _ => 'тренировочных дней',
   };
 }

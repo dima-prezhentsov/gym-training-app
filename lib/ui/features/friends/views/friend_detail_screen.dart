@@ -87,7 +87,7 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
     }
   }
 
-  Future<void> _setSharing({bool? stats, bool? history}) async {
+  Future<void> _setSharing({bool? stats, bool? history, bool? activity}) async {
     final friend = _friend;
     if (friend == null || _busy) return;
     setState(() => _busy = true);
@@ -96,6 +96,7 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
         friend.userId,
         stats: stats ?? friend.sharesStats,
         history: history ?? friend.sharesHistory,
+        activity: activity ?? friend.sharesActivity,
       );
       if (mounted) setState(() => _friend = updated);
     } on Object {
@@ -202,6 +203,17 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
                               onChanged: _busy
                                   ? null
                                   : (value) => _setSharing(history: value),
+                            ),
+                            const Divider(),
+                            SwitchListTile(
+                              title: const Text('Статус тренировки'),
+                              subtitle: const Text(
+                                'Показывать другу, тренируетесь ли вы сейчас',
+                              ),
+                              value: friend.sharesActivity,
+                              onChanged: _busy
+                                  ? null
+                                  : (value) => _setSharing(activity: value),
                             ),
                           ],
                         ),

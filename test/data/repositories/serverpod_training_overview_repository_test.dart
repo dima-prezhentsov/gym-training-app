@@ -3,6 +3,7 @@ import 'package:gym_training_app/data/fixtures/demo_training_schedule.dart';
 import 'package:gym_training_app/data/repositories/serverpod_training_overview_repository.dart';
 import 'package:gym_training_app/data/repositories/training_schedule_repository.dart';
 import 'package:gym_training_app/data/repositories/workout_repository.dart';
+import 'package:gym_training_app/domain/models/active_workout.dart';
 import 'package:gym_training_app/domain/models/exercise_record.dart';
 import 'package:gym_training_app/domain/models/muscle_group.dart';
 import 'package:gym_training_app/domain/models/set_record.dart';
@@ -71,6 +72,27 @@ void main() {
     expect(overview.daysUntilNextTraining, 0);
   });
 
+  test('skips a training day already completed today', () async {
+    final repository = ServerpodTrainingOverviewRepository(
+      scheduleRepository: _ScheduleRepository(demoTrainingSchedule),
+      workoutRepository: _WorkoutRepository([
+        _workout(
+          id: 'today',
+          startedAt: DateTime(2026, 9, 28, 18),
+          completedAt: DateTime(2026, 9, 28, 19),
+          setCount: 2,
+        ),
+      ]),
+      now: () => DateTime(2026, 9, 28, 20),
+    );
+
+    final overview = await repository.getOverview();
+
+    expect(overview.days.first.state, TrainingDayState.completed);
+    expect(overview.nextTraining?.id, 'thursday-pull');
+    expect(overview.daysUntilNextTraining, 3);
+  });
+
   test('returns an empty next training for an empty schedule', () async {
     final repository = ServerpodTrainingOverviewRepository(
       scheduleRepository: _ScheduleRepository(
@@ -134,6 +156,15 @@ class _WorkoutRepository implements WorkoutRepository {
 
   @override
   Future<List<WorkoutRecord>> loadHistory() async => history;
+
+  @override
+  Future<ActiveWorkout?> loadDraft() async => null;
+
+  @override
+  Future<void> saveDraft(ActiveWorkout workout) async {}
+
+  @override
+  Future<void> touchDraft() async {}
 
   @override
   Future<void> save(WorkoutRecord record) async {}

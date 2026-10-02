@@ -69,8 +69,10 @@ class FriendsEndpoint extends Endpoint {
         status: 'pending',
         aSharesStats: false,
         aSharesHistory: false,
+        aSharesActivity: false,
         bSharesStats: false,
         bSharesHistory: false,
+        bSharesActivity: false,
       ),
     );
     return _toDto(session, relation, me);
@@ -124,6 +126,7 @@ class FriendsEndpoint extends Endpoint {
     String userId, {
     required bool stats,
     required bool history,
+    bool? activity,
   }) async {
     final me = session.authenticated!.authUserId;
     final relation = await _requirePair(session, me, userId);
@@ -133,8 +136,16 @@ class FriendsEndpoint extends Endpoint {
     final updated = await FriendshipEntity.db.updateRow(
       session,
       (relation.userAId == me
-              ? relation.copyWith(aSharesStats: stats, aSharesHistory: history)
-              : relation.copyWith(bSharesStats: stats, bSharesHistory: history))
+              ? relation.copyWith(
+                  aSharesStats: stats,
+                  aSharesHistory: history,
+                  aSharesActivity: activity ?? relation.aSharesActivity,
+                )
+              : relation.copyWith(
+                  bSharesStats: stats,
+                  bSharesHistory: history,
+                  bSharesActivity: activity ?? relation.bSharesActivity,
+                ))
           .copyWith(updatedAt: DateTime.now().toUtc()),
     );
     return _toDto(session, updated, me);
@@ -229,6 +240,13 @@ class FriendsEndpoint extends Endpoint {
       other.firstName,
       other.lastName,
     ].whereType<String>().where((part) => part.isNotEmpty).join(' ');
+    final canViewActivity = canViewFriendActivity(relation, meIsA);
+    final activeDraft = canViewActivity
+        ? await WorkoutDraftEntity.db.findFirstRow(
+            session,
+            where: (table) => table.authUserId.equals(_otherId(relation, me)),
+          )
+        : null;
     return FriendConnectionDto(
       userId: _otherId(relation, me).toString(),
       displayName: displayName,
@@ -237,8 +255,17 @@ class FriendsEndpoint extends Endpoint {
       isIncoming: relation.status == 'pending' && relation.requestedById != me,
       sharesStats: meIsA ? relation.aSharesStats : relation.bSharesStats,
       sharesHistory: meIsA ? relation.aSharesHistory : relation.bSharesHistory,
+      sharesActivity: meIsA
+          ? relation.aSharesActivity
+          : relation.bSharesActivity,
       canViewStats: canViewFriendStats(relation, meIsA),
       canViewHistory: canViewFriendHistory(relation, meIsA),
+      canViewActivity: canViewActivity,
+      isTraining:
+          activeDraft != null &&
+          activeDraft.updatedAt.isAfter(
+            DateTime.now().toUtc().subtract(const Duration(minutes: 3)),
+          ),
     );
   }
 }

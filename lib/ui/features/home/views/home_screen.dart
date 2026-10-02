@@ -143,7 +143,8 @@ class _AnimatedDayTileState extends State<_AnimatedDayTile>
   late final AnimationController _controller;
   late final Animation<double> _pulse;
 
-  bool get _isTodayTraining => widget.day.isToday && widget.day.hasTraining;
+  bool get _isTodayTraining =>
+      widget.day.isToday && widget.day.state == TrainingDayState.upcoming;
 
   @override
   void initState() {
@@ -191,6 +192,7 @@ class _AnimatedDayTileState extends State<_AnimatedDayTile>
   Widget build(BuildContext context) {
     final day = widget.day;
     final highlighted = day.hasTraining;
+    final completed = day.state == TrainingDayState.completed;
     final today = day.isToday;
     final tile = AnimatedContainer(
       key: today ? const ValueKey('today-day-tile') : null,
@@ -232,18 +234,25 @@ class _AnimatedDayTileState extends State<_AnimatedDayTile>
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            '${day.dayNumber}',
-            style: TextStyle(
-              color: highlighted
-                  ? AppColors.background
-                  : today
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
+          if (completed)
+            const Icon(
+              Icons.check_circle_rounded,
+              size: 20,
+              color: AppColors.background,
+            )
+          else
+            Text(
+              '${day.dayNumber}',
+              style: TextStyle(
+                color: highlighted
+                    ? AppColors.background
+                    : today
+                    ? AppColors.textPrimary
+                    : AppColors.textSecondary,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -254,6 +263,7 @@ class _AnimatedDayTileState extends State<_AnimatedDayTile>
         day.dayNumber,
         if (today) 'сегодня',
         if (day.hasTraining) 'тренировочный день',
+        if (day.state == TrainingDayState.completed) 'тренировка завершена',
       ].join(', '),
       child: AnimatedBuilder(
         key: _isTodayTraining ? const ValueKey('today-training-pulse') : null,

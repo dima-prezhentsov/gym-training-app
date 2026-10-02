@@ -1,0 +1,13 @@
+### One active workout draft per account.
+class: WorkoutDraftEntity
+serverOnly: true
+table: workout_draft
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  authUser: module:serverpod_auth_core:AuthUser?, relation(onDelete=Cascade)
+  recordJson: String
+  updatedAt: DateTime, defaultModel=now
+indexes:
+  workout_draft_auth_user_id_idx:
+    fields: authUserId
+    unique: true

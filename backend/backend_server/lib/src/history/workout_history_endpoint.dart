@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 
@@ -13,6 +15,63 @@ class WorkoutHistoryEndpoint extends Endpoint {
       session,
       session.authenticated!.authUserId,
     );
+  }
+
+  Future<WorkoutRecordDto?> loadDraft(Session session) async {
+    final draft = await WorkoutDraftEntity.db.findFirstRow(
+      session,
+      where: (table) =>
+          table.authUserId.equals(session.authenticated!.authUserId),
+    );
+    if (draft == null) return null;
+    return WorkoutRecordDto.fromJson(
+      jsonDecode(draft.recordJson) as Map<String, dynamic>,
+    );
+  }
+
+  Future<void> saveDraft(Session session, WorkoutRecordDto record) async {
+    _validate(record);
+    if (record.completedAt != record.startedAt) {
+      throw WorkoutHistoryValidationException(reason: 'invalidDraft');
+    }
+    final authUserId = session.authenticated!.authUserId;
+    final existing = await WorkoutDraftEntity.db.findFirstRow(
+      session,
+      where: (table) => table.authUserId.equals(authUserId),
+    );
+    final payload = jsonEncode(record.toJson());
+    if (existing == null) {
+      await WorkoutDraftEntity.db.insertRow(
+        session,
+        WorkoutDraftEntity(
+          authUserId: authUserId,
+          recordJson: payload,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      );
+    } else {
+      await WorkoutDraftEntity.db.updateRow(
+        session,
+        existing.copyWith(
+          recordJson: payload,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      );
+    }
+  }
+
+  Future<void> touchDraft(Session session) async {
+    final draft = await WorkoutDraftEntity.db.findFirstRow(
+      session,
+      where: (table) =>
+          table.authUserId.equals(session.authenticated!.authUserId),
+    );
+    if (draft != null) {
+      await WorkoutDraftEntity.db.updateRow(
+        session,
+        draft.copyWith(updatedAt: DateTime.now().toUtc()),
+      );
+    }
   }
 
   Future<WorkoutRecordDto> save(
@@ -46,19 +105,15 @@ class WorkoutHistoryEndpoint extends Endpoint {
             transaction: transaction,
           );
         } else {
-          await ExerciseRecordEntity.db.deleteWhere(
+          await _clearMatchingDraft(
             session,
-            where: (table) => table.workoutId.equals(entity!.id!),
-            transaction: transaction,
+            authUserId,
+            record.id,
+            transaction,
           );
-          entity = await WorkoutRecordEntity.db.updateRow(
+          return WorkoutHistoryReader.loadRecord(
             session,
-            entity.copyWith(
-              trainingDayPublicId: record.trainingDayId,
-              title: record.title.trim(),
-              startedAt: record.startedAt.toUtc(),
-              completedAt: record.completedAt.toUtc(),
-            ),
+            entity,
             transaction: transaction,
           );
         }
@@ -89,6 +144,7 @@ class WorkoutHistoryEndpoint extends Endpoint {
             );
           }
         }
+        await _clearMatchingDraft(session, authUserId, record.id, transaction);
         return WorkoutHistoryReader.loadRecord(
           session,
           entity,
@@ -96,6 +152,30 @@ class WorkoutHistoryEndpoint extends Endpoint {
         );
       },
     );
+  }
+
+  Future<void> _clearMatchingDraft(
+    Session session,
+    UuidValue authUserId,
+    String workoutId,
+    Transaction transaction,
+  ) async {
+    final draft = await WorkoutDraftEntity.db.findFirstRow(
+      session,
+      where: (table) => table.authUserId.equals(authUserId),
+      transaction: transaction,
+    );
+    if (draft == null) return;
+    final saved = WorkoutRecordDto.fromJson(
+      jsonDecode(draft.recordJson) as Map<String, dynamic>,
+    );
+    if (saved.id == workoutId) {
+      await WorkoutDraftEntity.db.deleteRow(
+        session,
+        draft,
+        transaction: transaction,
+      );
+    }
   }
 
   void _validate(WorkoutRecordDto record) {

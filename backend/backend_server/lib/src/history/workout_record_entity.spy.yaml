@@ -12,3 +12,6 @@ fields:
 indexes:
   workout_record_auth_user_id_idx:
     fields: authUserId
+  workout_record_user_public_id_idx:
+    fields: authUserId, publicId
+    unique: true

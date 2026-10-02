@@ -15,6 +15,7 @@ extension type TelegramWebAppJs(JSObject _) implements JSObject {
   external void expand();
   external bool isVersionAtLeast(String version);
   external void disableVerticalSwipes();
+  external void openTelegramLink(String url);
 }
 
 extension type TelegramInitDataJs(JSObject _) implements JSObject {
@@ -66,4 +67,15 @@ String _displayName(TelegramUserJs user) {
   ].whereType<String>().where((part) => part.isNotEmpty).join(' ');
   final username = user.username;
   return username == null || username.isEmpty ? parts : '$parts (@$username)';
+}
+
+bool shareLinkInTelegram(String link) {
+  final app = _telegramWebApp;
+  if (app == null || app.initData.isEmpty) return false;
+  final shareUrl = Uri.https('t.me', '/share/url', {
+    'url': link,
+    'text': 'Присоединяйся ко мне в LiftLog',
+  });
+  app.openTelegramLink(shareUrl.toString());
+  return true;
 }

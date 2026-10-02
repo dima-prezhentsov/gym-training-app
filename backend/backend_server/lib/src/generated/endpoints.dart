@@ -246,6 +246,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool>(),
               nullable: false,
             ),
+            'activity': _i1.ParameterDescription(
+              name: 'activity',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -257,6 +262,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['userId'],
                     stats: params['stats'],
                     history: params['history'],
+                    activity: params['activity'],
                   ),
         ),
         'getProgress': _i1.MethodConnector(
@@ -343,6 +349,48 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async =>
                   (endpoints['workoutHistory'] as _i6.WorkoutHistoryEndpoint)
                       .list(session),
+        ),
+        'loadDraft': _i1.MethodConnector(
+          name: 'loadDraft',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['workoutHistory'] as _i6.WorkoutHistoryEndpoint)
+                      .loadDraft(session),
+        ),
+        'saveDraft': _i1.MethodConnector(
+          name: 'saveDraft',
+          params: {
+            'record': _i1.ParameterDescription(
+              name: 'record',
+              type: _i1.getType<_i9.WorkoutRecordDto>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['workoutHistory'] as _i6.WorkoutHistoryEndpoint)
+                      .saveDraft(
+                        session,
+                        params['record'],
+                      ),
+        ),
+        'touchDraft': _i1.MethodConnector(
+          name: 'touchDraft',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['workoutHistory'] as _i6.WorkoutHistoryEndpoint)
+                      .touchDraft(session),
         ),
         'save': _i1.MethodConnector(
           name: 'save',

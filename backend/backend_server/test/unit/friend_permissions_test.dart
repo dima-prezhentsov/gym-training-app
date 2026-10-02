@@ -14,21 +14,26 @@ void main() {
     status: status,
     aSharesStats: false,
     aSharesHistory: false,
+    aSharesActivity: false,
     bSharesStats: true,
     bSharesHistory: false,
+    bSharesActivity: true,
   );
 
   test('pending request grants neither statistics nor history', () {
     final pending = friendship(status: 'pending');
     expect(canViewFriendStats(pending, true), isFalse);
     expect(canViewFriendHistory(pending, true), isFalse);
+    expect(canViewFriendActivity(pending, true), isFalse);
   });
 
   test('permissions are directional and independent', () {
     final accepted = friendship(status: 'accepted');
     expect(canViewFriendStats(accepted, true), isTrue);
     expect(canViewFriendHistory(accepted, true), isFalse);
+    expect(canViewFriendActivity(accepted, true), isTrue);
     expect(canViewFriendStats(accepted, false), isFalse);
     expect(canViewFriendHistory(accepted, false), isFalse);
+    expect(canViewFriendActivity(accepted, false), isFalse);
   });
 }
