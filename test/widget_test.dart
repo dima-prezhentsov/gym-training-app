@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_training_app/app/app.dart';
+import 'package:gym_training_app/data/fixtures/demo_training_schedule.dart';
 import 'package:gym_training_app/data/repositories/in_memory_training_schedule_repository.dart';
 import 'package:gym_training_app/data/repositories/in_memory_workout_repository.dart';
 import 'package:gym_training_app/data/repositories/progress_repository.dart';
@@ -9,6 +10,7 @@ import 'package:gym_training_app/data/repositories/training_overview_repository.
 import 'package:gym_training_app/domain/models/progress_overview.dart';
 import 'package:gym_training_app/domain/models/training_overview.dart';
 import 'package:gym_training_app/domain/models/training_schedule.dart';
+import 'package:gym_training_app/domain/models/workout_record.dart';
 import 'package:gym_training_app/telegram/telegram_web_app.dart';
 import 'package:gym_training_app/ui/features/workout/view_models/workout_view_model.dart';
 import 'package:provider/provider.dart';
@@ -406,12 +408,12 @@ void main() {
   testWidgets('records a set and shows the completed workout in history', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      GymTrainingApp(
-        telegram: const TelegramLaunchData.browser(),
-        workoutRepository: InMemoryWorkoutRepository(),
-      ),
+    final repository = InMemoryWorkoutRepository();
+    final app = GymTrainingApp(
+      telegram: const TelegramLaunchData.browser(),
+      workoutRepository: repository,
     );
+    await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Начать тренировку'));
@@ -457,6 +459,11 @@ void main() {
     await tester.tap(find.text(active.title));
     await tester.pumpAndSettle();
     expect(find.text('1. 10 повторений · 40 кг'), findsOneWidget);
+
+    app.router.config.go('/workout/${active.trainingDayId}');
+    await tester.pumpAndSettle();
+    expect(find.text('Тренировка уже завершена'), findsOneWidget);
+    expect(await repository.loadDraft(), isNull);
   });
 
   testWidgets('shows and resumes the active workout from home', (tester) async {
@@ -481,6 +488,43 @@ void main() {
 
     await tester.tap(find.byTooltip('Назад'));
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('reopening a completed workout does not start a new draft', (
+    tester,
+  ) async {
+    final day = demoTrainingSchedule.days.first;
+    final completedAt = DateTime.now();
+    final repository = InMemoryWorkoutRepository(
+      initialRecords: [
+        WorkoutRecord(
+          id: 'completed-today',
+          trainingDayId: day.id,
+          title: day.name,
+          startedAt: completedAt.subtract(const Duration(minutes: 45)),
+          completedAt: completedAt,
+          exercises: const [],
+        ),
+      ],
+    );
+    final app = GymTrainingApp(
+      telegram: const TelegramLaunchData.browser(),
+      workoutRepository: repository,
+    );
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
+
+    app.router.config.go('/workout/${day.id}');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Тренировка уже завершена'), findsOneWidget);
+    expect(await repository.loadDraft(), isNull);
+
+    await tester.tap(find.text('Начать ещё одну тренировку'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Активная тренировка'), findsOneWidget);
+    expect(await repository.loadDraft(), isNotNull);
   });
 
   testWidgets('shows an error when a workout schedule cannot be loaded', (

@@ -85,9 +85,34 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    if (workoutViewModel.historyStatus == WorkoutHistoryStatus.initial ||
+        workoutViewModel.historyStatus == WorkoutHistoryStatus.loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (workoutViewModel.historyStatus == WorkoutHistoryStatus.failure) {
+      return _WorkoutLoadError(
+        message: 'Не удалось загрузить историю тренировок',
+        onRetry: () => retryWithErrorFeedback(
+          context,
+          operation: workoutViewModel.loadHistory,
+          errorMessage: () => workoutViewModel.errorMessage,
+          fallbackMessage: 'Не удалось загрузить историю тренировок',
+        ),
+        onBack: () => _goBack(context),
+      );
+    }
+
     final day = _findDay(scheduleViewModel, widget.trainingDayId);
     if (day == null) {
       return _MissingTrainingDay(onBack: () => _goBack(context));
+    }
+
+    if (workoutViewModel.hasCompletedToday(day.id)) {
+      return _CompletedTrainingDay(
+        onBack: () => context.go('/home'),
+        onStartAgain: () => workoutViewModel.startWorkout(day),
+      );
     }
 
     if (!_startScheduled) {
@@ -639,6 +664,53 @@ class _MissingTrainingDay extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 FilledButton(onPressed: onBack, child: const Text('Назад')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompletedTrainingDay extends StatelessWidget {
+  const _CompletedTrainingDay({
+    required this.onBack,
+    required this.onStartAgain,
+  });
+
+  final VoidCallback onBack;
+  final VoidCallback onStartAgain;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle_rounded, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  'Тренировка уже завершена',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Вы уже сохранили эту тренировку сегодня. Если начнёте ещё одну, она появится в истории отдельно.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: onStartAgain,
+                  child: const Text('Начать ещё одну тренировку'),
+                ),
+                TextButton(onPressed: onBack, child: const Text('На главную')),
               ],
             ),
           ),

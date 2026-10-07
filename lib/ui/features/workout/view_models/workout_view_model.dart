@@ -31,6 +31,17 @@ class WorkoutViewModel extends ChangeNotifier {
   bool get isFinishing => _isFinishing;
   bool get isRestoringDraft => _isRestoringDraft;
 
+  bool hasCompletedToday(String trainingDayId, {DateTime? now}) {
+    final today = (now ?? DateTime.now()).toLocal();
+    return _history.any((record) {
+      final completed = record.completedAt.toLocal();
+      return record.trainingDayId == trainingDayId &&
+          completed.year == today.year &&
+          completed.month == today.month &&
+          completed.day == today.day;
+    });
+  }
+
   Future<void> initialize() async {
     _isRestoringDraft = true;
     notifyListeners();
